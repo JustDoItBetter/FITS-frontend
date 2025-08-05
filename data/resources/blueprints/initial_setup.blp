@@ -1,0 +1,55 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $InitialSetupWindow: Adw.ApplicationWindow {
+  title: _("Initial Setup");
+  default-height: 300;
+  default-width: 200;
+
+  content: Adw.ToastOverlay toast_overlay {
+    child: Adw.NavigationView {
+      Adw.NavigationPage {
+        title: _("Sign in");
+
+        child: Adw.ToolbarView {
+          Adw.Clamp {
+            maximum-size: 500;
+
+            child: Gtk.Box {
+              valign: center;
+              orientation: vertical;
+              spacing: 12;
+
+              Label {
+                label: _("Signing in");
+
+                styles [
+                  "title-1",
+                ]
+              }
+
+              Adw.EntryRow username_entry {
+                title: _("Username");
+                text: _("Please enter your username");
+              }
+
+              Adw.PasswordEntryRow password_entry {
+                title: _("Password");
+              }
+
+              Button {
+                label: _("Sign in");
+                clicked => $check_signin() swapped;
+
+                styles [
+                  "suggested-action",
+                  "pill",
+                ]
+              }
+            };
+          }
+        };
+      }
+    };
+  };
+}

@@ -1,0 +1,21 @@
+[package]
+name = "fck-ihk"
+version = "0.1.0"
+edition = "2024"
+
+# GUI
+[dependencies.gtk]
+version = "0.10.0"
+package = "gtk4"
+features = ["v4_18", "blueprint"]
+
+# More GUI
+[dependencies.adw]
+version = "0.8.0"
+package = "libadwaita"
+features = ["v1_7"]
+
+[build-dependencies]
+glib-build-tools = "0.21.0"
+
+[dependencies]
