@@ -15,7 +15,15 @@ version = "0.8.0"
 package = "libadwaita"
 features = ["v1_7"]
 
+[dependencies]
+# For storing persistent data
+rusqlite = { version = "0.37.0", features = ["bundled"] }
+# For storing sensitive data
+keyring = { version = "3.6.3", features = [
+    "apple-native",
+    "windows-native",
+    "linux-native-sync-persistent",
+] }
+
 [build-dependencies]
 glib-build-tools = "0.21.0"
-
-[dependencies]

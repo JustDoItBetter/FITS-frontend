@@ -14,8 +14,9 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-use gtk::gio::prelude::{ApplicationExt, ApplicationExtManual};
+use gtk::gio::prelude::*;
 
+pub mod common;
 pub mod gui;
 pub mod local;
 
@@ -26,8 +27,13 @@ fn main() {
         .expect("Failed to register resources.");
 
     let app = adw::Application::builder().application_id(APP_ID).build();
-    if local::check_first_run() {
+    let config = local::load_data();
+
+    let config = if config.is_err() {
         app.connect_activate(gui::build_setup_dialog);
         app.run();
-    }
+        local::load_data().expect("Setup failed. Try again?")
+    } else {
+        config.unwrap()
+    };
 }

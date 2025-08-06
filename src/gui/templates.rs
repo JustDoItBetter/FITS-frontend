@@ -1,6 +1,7 @@
 // Boilerplate for GTK resources. You do NOT want to be here.
 // SPDX-License-Identifier: GPL-3.0-only
 
+use crate::local;
 use adw::{glib, subclass::prelude::*};
 use gtk::prelude::EditableExt;
 
@@ -43,11 +44,20 @@ impl InitialSetupWindow {
     #[template_callback]
     fn check_signin(&self) {
         let username = self.username_entry.get().text().to_string();
-        let password = self.password_entry.get().text().as_str();
+        let password = self.password_entry.get().text().to_string();
 
-        let toast_title = format!("Logging in with {} and a password", username);
-        let toast = adw::Toast::builder().title(toast_title).build();
+        if local::keyring::save_credentials(&username, &password).is_err() {
+            let toast = adw::Toast::builder()
+                .title("Failed to save credentials!")
+                .build();
+            self.toast_overlay.get().add_toast(toast);
+        }
 
-        self.toast_overlay.get().add_toast(toast);
+        if local::sqlite::create_db().is_err() {
+            let toast = adw::Toast::builder()
+                .title("Failed to create persistent storage!")
+                .build();
+            self.toast_overlay.get().add_toast(toast);
+        }
     }
 }
