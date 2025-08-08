@@ -4,7 +4,7 @@ use crate::common;
 use keyring::Entry;
 
 pub fn get_password(user: &str) -> Result<String, common::LocalError> {
-    let Ok(entry) = Entry::new("fck-ihk", user) else {
+    let Ok(entry) = Entry::new("fits", user) else {
         return Err(common::LocalError::KeyringError);
     };
     match entry.get_password() {
@@ -17,7 +17,7 @@ pub fn get_password(user: &str) -> Result<String, common::LocalError> {
 /// This feels kinda hacky, but it really does not make sense to save it in sqlite
 /// or to add a THIRD data location
 pub fn get_username() -> Result<String, common::LocalError> {
-    let Ok(entry) = Entry::new("fck-ihk", "username") else {
+    let Ok(entry) = Entry::new("fits", "username") else {
         return Err(common::LocalError::KeyringError);
     };
     match entry.get_password() {
@@ -27,14 +27,14 @@ pub fn get_username() -> Result<String, common::LocalError> {
 }
 
 pub fn save_credentials(username: &str, password: &str) -> Result<(), common::LocalError> {
-    let Ok(username_entry) = Entry::new("fck-ihk", "username") else {
+    let Ok(username_entry) = Entry::new("fits", "username") else {
         return Err(common::LocalError::KeyringError);
     };
     if username_entry.set_password(username).is_err() {
         return Err(common::LocalError::KeyringError);
     }
 
-    let Ok(actual_entry) = Entry::new("fck-ihk", username) else {
+    let Ok(actual_entry) = Entry::new("fits", username) else {
         return Err(common::LocalError::KeyringError);
     };
     if actual_entry.set_password(password).is_err() {

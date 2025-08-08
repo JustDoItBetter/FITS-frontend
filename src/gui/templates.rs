@@ -7,7 +7,7 @@ use gtk::prelude::EditableExt;
 
 // Boilerplate to get the settings from the blueprint into a GObject into Rust.
 #[derive(Default, gtk::CompositeTemplate)]
-#[template(resource = "/io/github/noahjeana/fck_ihk/initial_setup.ui")]
+#[template(resource = "/io/github/noahjeana/fits/initial_setup.ui")]
 pub struct InitialSetupWindow {
     #[template_child]
     pub username_entry: TemplateChild<adw::EntryRow>,

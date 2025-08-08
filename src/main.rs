@@ -20,7 +20,7 @@ pub mod common;
 pub mod gui;
 pub mod local;
 
-const APP_ID: &str = "io.github.NoahJeanA.fck_ihk";
+const APP_ID: &str = "io.github.NoahJeanA.fits";
 
 fn main() {
     gtk::gio::resources_register_include!("compiled.gresources")

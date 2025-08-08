@@ -23,5 +23,5 @@ fn get_path_xdg() -> PathBuf {
         // and add something to the end and return that so we always return Ok
         unreachable!();
     };
-    PathBuf::from(format!("{}/fck-ihk/data.sqlite", xdg_base))
+    PathBuf::from(format!("{}/fits/data.sqlite", xdg_base))
 }

@@ -3,7 +3,7 @@
 fn main() {
     glib_build_tools::compile_resources(
         &["data/resources/blueprints"],
-        "data/resources/fck-ihk.gresource.xml",
+        "data/resources/fits.gresource.xml",
         "compiled.gresources",
     );
 }

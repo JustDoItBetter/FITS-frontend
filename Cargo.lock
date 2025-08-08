@@ -137,17 +137,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
 
 [[package]]
-name = "fck-ihk"
-version = "0.1.0"
-dependencies = [
- "glib-build-tools",
- "gtk4",
- "keyring",
- "libadwaita",
- "rusqlite",
-]
-
-[[package]]
 name = "field-offset"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -155,6 +144,17 @@ checksum = "38e2275cc4e4fc009b0669731a1e5ab7ebf11f469eaede2bab9309a5b4d6057f"
 dependencies = [
  "memoffset",
  "rustc_version",
+]
+
+[[package]]
+name = "fits"
+version = "0.1.0"
+dependencies = [
+ "glib-build-tools",
+ "gtk4",
+ "keyring",
+ "libadwaita",
+ "rusqlite",
 ]
 
 [[package]]
