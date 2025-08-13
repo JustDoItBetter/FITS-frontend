@@ -3,6 +3,7 @@
 
 use crate::common;
 use rusqlite::Connection;
+mod schemas;
 
 pub fn connect() -> Result<Connection, common::LocalError> {
     let path = super::paths::get_sqlite_path();
@@ -26,13 +27,22 @@ pub fn create_db() -> Result<Connection, common::LocalError> {
         log::info!("DB was already there, not overwriting it");
         return Err(common::LocalError::AlreadyExists);
     }
-    // TODO: Actually decide on schemas based on things that will not happen for a
-    // few days
-    match Connection::open(path) {
-        Ok(conn) => Ok(conn),
-        Err(e) => {
-            log::warn!("Sqlite failed to open: {e}");
-            Err(common::LocalError::SqliteError)
-        }
+
+    let Ok(conn) = Connection::open(path) else {
+        log::warn!("Sqlite failed to open");
+        return Err(common::LocalError::SqliteError);
+    };
+
+    let query = format!(
+        "BEGIN; {} {} COMMIT;",
+        schemas::NOTES_TABLE,
+        schemas::PROFILE_TABLE
+    );
+    if let Err(e) = conn.execute_batch(&query) {
+        log::warn!("Failed to create SQL schema: {e}");
+        log::warn!("This should NEVER happen.");
+        return Err(common::LocalError::SqliteError);
     }
+
+    Ok(conn)
 }
