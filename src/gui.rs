@@ -28,3 +28,17 @@ pub fn build_setup_dialog(app: &adw::Application) {
     let window = InitialSetupWindow::new(app);
     window.present();
 }
+
+glib::wrapper! {
+    pub struct FitsWindow(ObjectSubclass<templates::FitsWindow>)
+    @extends adw::ApplicationWindow,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget, gtk::Widget,
+    gtk::gio::ActionGroup, gtk::gio::ActionMap, gtk::Native, gtk::Root,
+    gtk::ShortcutManager, gtk::ApplicationWindow, gtk::Window;
+}
+
+impl FitsWindow {
+    pub fn new(app: &adw::Application) -> Self {
+        glib::Object::builder().property("application", app).build()
+    }
+}

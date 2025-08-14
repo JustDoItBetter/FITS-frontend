@@ -61,3 +61,36 @@ impl InitialSetupWindow {
         }
     }
 }
+
+#[derive(Default, gtk::CompositeTemplate)]
+#[template(resource = "/io/github/noahjeana/fits/main_window.ui")]
+pub struct FitsWindow {
+    #[template_child]
+    pub main_view: TemplateChild<adw::ViewStack>,
+    #[template_child]
+    pub top_switcher: TemplateChild<adw::ViewSwitcher>,
+    #[template_child]
+    pub bottom_switcher: TemplateChild<adw::ViewSwitcherBar>,
+}
+
+#[glib::object_subclass]
+impl ObjectSubclass for FitsWindow {
+    const NAME: &'static str = "FitsWindow";
+    type Type = super::FitsWindow;
+    type ParentType = adw::ApplicationWindow;
+
+    fn class_init(klass: &mut Self::Class) {
+        klass.bind_template();
+        // klass.bind_template_callbacks();
+    }
+
+    fn instance_init(obj: &gtk::glib::subclass::InitializingObject<Self>) {
+        obj.init_template();
+    }
+}
+
+impl ObjectImpl for FitsWindow {}
+impl WidgetImpl for FitsWindow {}
+impl AdwApplicationWindowImpl for FitsWindow {}
+impl ApplicationWindowImpl for FitsWindow {}
+impl WindowImpl for FitsWindow {}
