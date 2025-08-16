@@ -8,10 +8,10 @@ mod templates;
 
 glib::wrapper! {
     pub struct InitialSetupWindow(ObjectSubclass<templates::InitialSetupWindow>)
-    @extends adw::ApplicationWindow,
-    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget, gtk::Widget,
+    @extends adw::ApplicationWindow, gtk::ApplicationWindow, gtk::Window, gtk::Widget,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget,
     gtk::gio::ActionGroup, gtk::gio::ActionMap, gtk::Native, gtk::Root,
-    gtk::ShortcutManager, gtk::ApplicationWindow, gtk::Window;
+    gtk::ShortcutManager;
 }
 
 impl InitialSetupWindow {
@@ -31,10 +31,10 @@ pub fn build_setup_dialog(app: &adw::Application) {
 
 glib::wrapper! {
     pub struct FitsWindow(ObjectSubclass<templates::FitsWindow>)
-    @extends adw::ApplicationWindow,
-    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget, gtk::Widget,
+    @extends adw::ApplicationWindow, gtk::ApplicationWindow, gtk::Window, gtk::Widget,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget,
     gtk::gio::ActionGroup, gtk::gio::ActionMap, gtk::Native, gtk::Root,
-    gtk::ShortcutManager, gtk::ApplicationWindow, gtk::Window;
+    gtk::ShortcutManager;
 }
 
 impl FitsWindow {

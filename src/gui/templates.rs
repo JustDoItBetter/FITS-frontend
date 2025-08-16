@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 use crate::local;
-use adw::{glib, subclass::prelude::*};
-use gtk::prelude::EditableExt;
+use adw::{glib, prelude::*, subclass::prelude::*};
 
 // Boilerplate to get the settings from the blueprint into a GObject into Rust.
 #[derive(Default, gtk::CompositeTemplate)]
@@ -59,6 +58,13 @@ impl InitialSetupWindow {
                 .build();
             self.toast_overlay.get().add_toast(toast);
         }
+
+        // GtkWindowExt::close(&self);
+        // Does not work because self is gui::templates::InitialSetupWindow and
+        // IsA<gtk::Window> is only implemented for gui::InitialSetupWindow
+        // YAY
+        let obj = self.obj();
+        obj.close();
     }
 }
 
