@@ -22,10 +22,23 @@ pub fn connect() -> Result<Connection, common::LocalError> {
 
 /// Creates the local sqlite db with the schemas.
 pub fn create_db() -> Result<Connection, common::LocalError> {
+    log::debug!("Trying to create database");
     let path = super::paths::get_sqlite_path();
     if path.exists() {
         log::info!("DB was already there, not overwriting it");
         return Err(common::LocalError::AlreadyExists);
+    }
+
+    {
+        let mut db_directory = path.clone();
+        assert!(db_directory.pop());
+        if let Err(e) = std::fs::create_dir_all(db_directory.clone()) {
+            log::warn!(
+                "Failed to create directory for database at path {:#?} with error: {e}",
+                db_directory
+            );
+            log::warn!("Will still attempt to create db");
+        };
     }
 
     let Ok(conn) = Connection::open(path) else {
@@ -33,6 +46,7 @@ pub fn create_db() -> Result<Connection, common::LocalError> {
         return Err(common::LocalError::SqliteError);
     };
 
+    log::debug!("Creating db schema");
     let query = format!(
         "BEGIN; {} {} COMMIT;",
         schemas::NOTES_TABLE,
