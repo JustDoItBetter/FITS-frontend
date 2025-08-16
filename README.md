@@ -10,8 +10,8 @@ considered a last resort if there are no prebuilt packages at all for your
 platform (or you are a developer). With that said:
 
 To build FITS from source, you will need to have GTK development libraries and the
-Rust toolchain installed. To do so, follow the guide at <rustup.rs> for installing
-Rust and <https://www.gtk.org/docs/installations/> for GTK.
+Rust toolchain installed. To do so, follow the guide at <https://rustup.rs> for
+installing Rust and <https://www.gtk.org/docs/installations/> for GTK.
 
 Once you are set up with your dependencies, simply run
 `git clone https://github.com/NoahJeanA/fck-ihk.git`, then
