@@ -14,8 +14,8 @@ Rust toolchain installed. To do so, follow the guide at <https://rustup.rs> for
 installing Rust and <https://www.gtk.org/docs/installations/> for GTK.
 
 Once you are set up with your dependencies, simply run
-`git clone https://github.com/NoahJeanA/fck-ihk.git`, then
-`cd fck-ihk` and finally `cargo build --release` (or `cargo run --release`
+`git clone https://github.com/NoahJeanA/FITS.git`, then
+`cd FITS` and finally `cargo build --release` (or `cargo run --release`
 to run it directly).
 
 
