@@ -23,7 +23,7 @@ pub mod local;
 const APP_ID: &str = "io.github.NoahJeanA.fits";
 
 fn main() {
-    env_logger::init_from_env("FITS_LOG");
+    env_logger::Builder::from_env(env_logger::Env::default().filter_or("FITS_LOG", "warn")).init();
 
     gtk::gio::resources_register_include!("compiled.gresources")
         .expect("Failed to register resources.");
