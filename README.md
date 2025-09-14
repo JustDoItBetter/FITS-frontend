@@ -1,6 +1,12 @@
 # FITS
 Fucking IHK tooling sucks
 
+### Project Status - Development Proceeding
+Development is ongoing and continuing. Things should start to happen more and more
+as there is now a somewhat formed idea on what the final software should look like.
+We currently aim for a release before 2026, with release candidates starting at the
+latest December 1st.
+
 ## Installation
 ### From source
 
@@ -17,20 +23,3 @@ Once you are set up with your dependencies, simply run
 `git clone https://github.com/NoahJeanA/FITS.git`, then
 `cd FITS` and finally `cargo build --release` (or `cargo run --release`
 to run it directly).
-
-
-### Project Status - Development on Hold
-#### Current Status: Waiting for Platform Access
-    Development is currently paused until August 11th, 2025
-
-    Reason for Delay:
-
-    IHK has launched a new platform that requires extensive reverse engineering work.
-
-    We currently do not have access to the new system, which prevents us from continuing development.
-#### Timeline
-    Current Status: Waiting for platform access
-
-    Expected Resume Date: August 11th, 2025
-
-    Reason: New IHK platform requires significant reverse engineering
