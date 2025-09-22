@@ -28,6 +28,11 @@ template $InitialSetupWindow: Adw.ApplicationWindow {
                 ]
               }
 
+              Adw.EntryRow server_addr {
+                title: _("Server URL");
+                tooltip-text: _("The server address provided by your employer");
+              }
+
               Adw.EntryRow username_entry {
                 title: _("Username");
                 text: _("Please enter your username");

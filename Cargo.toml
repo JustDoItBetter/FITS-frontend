@@ -1,6 +1,6 @@
 [package]
 name = "fits"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 
 # GUI
@@ -15,19 +15,25 @@ version = "0.8.0"
 package = "libadwaita"
 features = ["v1_7"]
 
+# For storing sensitive data
+[dependencies.keyring]
+version = "3.6.3"
+features = ["apple-native", "windows-native", "linux-native-sync-persistent"]
+
+# Config
+[dependencies.serde]
+version = "1.0.226"
+features = ["derive"]
+
 [dependencies]
 # For storing persistent data
 rusqlite = { version = "0.37.0", features = ["bundled"] }
-# For storing sensitive data
-keyring = { version = "3.6.3", features = [
-    "apple-native",
-    "windows-native",
-    "linux-native-sync-persistent",
-] }
 # Logger
 env_logger = "0.11.8"
 # Logging
 log = "0.4.27"
+# Config format
+toml = { version = "0.9.7", features = ["serde"] }
 
 [build-dependencies]
 glib-build-tools = "0.21.0"

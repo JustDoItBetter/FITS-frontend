@@ -1,13 +1,14 @@
-// Boilerplate for GTK resources. You do NOT want to be here.
+//! Boilerplate for GTK resources. You do NOT want to be here.
 // SPDX-License-Identifier: GPL-3.0-only
 
-use crate::local;
+use crate::{common, local};
 use adw::{glib, prelude::*, subclass::prelude::*};
 
-// Boilerplate to get the settings from the blueprint into a GObject into Rust.
 #[derive(Default, gtk::CompositeTemplate)]
 #[template(resource = "/io/github/noahjeana/fits/initial_setup.ui")]
 pub struct InitialSetupWindow {
+    #[template_child]
+    pub server_addr: TemplateChild<adw::EntryRow>,
     #[template_child]
     pub username_entry: TemplateChild<adw::EntryRow>,
     #[template_child]
@@ -19,7 +20,7 @@ pub struct InitialSetupWindow {
 #[glib::object_subclass]
 impl ObjectSubclass for InitialSetupWindow {
     const NAME: &'static str = "InitialSetupWindow";
-    type Type = super::InitialSetupWindow;
+    type Type = super::widgets::InitialSetupWindow;
     type ParentType = adw::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
@@ -68,21 +69,30 @@ impl InitialSetupWindow {
     }
 }
 
+/// Main window
+///
+/// Holds the view of the application for writing
 #[derive(Default, gtk::CompositeTemplate)]
-#[template(resource = "/io/github/noahjeana/fits/main_window.ui")]
-pub struct FitsWindow {
+#[template(resource = "/io/github/noahjeana/fits/writer_window.ui")]
+pub struct FitsWriterWindow {
     #[template_child]
-    pub main_view: TemplateChild<adw::ViewStack>,
+    pub main_view: TemplateChild<adw::OverlaySplitView>,
     #[template_child]
-    pub top_switcher: TemplateChild<adw::ViewSwitcher>,
+    pub activities_source: TemplateChild<gtk::Box>,
     #[template_child]
-    pub bottom_switcher: TemplateChild<adw::ViewSwitcherBar>,
+    pub weekly_view: TemplateChild<adw::Bin>,
+    // Needs to be an Cell because interior mutability
+    //
+    // # Safety
+    // This cell MUST be initialized before the window is passed on because the
+    // entire application assumes it to be.
+    pub state: std::cell::Cell<Option<common::State>>,
 }
 
 #[glib::object_subclass]
-impl ObjectSubclass for FitsWindow {
-    const NAME: &'static str = "FitsWindow";
-    type Type = super::FitsWindow;
+impl ObjectSubclass for FitsWriterWindow {
+    const NAME: &'static str = "FitsWriterWindow";
+    type Type = super::widgets::FitsWriterWindow;
     type ParentType = adw::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
@@ -95,8 +105,67 @@ impl ObjectSubclass for FitsWindow {
     }
 }
 
-impl ObjectImpl for FitsWindow {}
-impl WidgetImpl for FitsWindow {}
-impl AdwApplicationWindowImpl for FitsWindow {}
-impl ApplicationWindowImpl for FitsWindow {}
-impl WindowImpl for FitsWindow {}
+impl ObjectImpl for FitsWriterWindow {
+    fn constructed(&self) {
+        self.parent_constructed();
+        // Load the possible activities and append them to the sidebar
+
+        self.load_css();
+    }
+}
+impl WidgetImpl for FitsWriterWindow {}
+impl AdwApplicationWindowImpl for FitsWriterWindow {}
+impl ApplicationWindowImpl for FitsWriterWindow {}
+impl WindowImpl for FitsWriterWindow {}
+
+impl FitsWriterWindow {
+    fn load_css(&self) {
+        let css_provider = gtk::CssProvider::new();
+        css_provider.load_from_resource("/io/github/noahjeana/fits/style.css");
+
+        gtk::style_context_add_provider_for_display(
+            &gtk::gdk::Display::default().expect("Could not connect to a display."),
+            &css_provider,
+            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+        );
+    }
+}
+
+#[derive(Default, gtk::CompositeTemplate)]
+#[template(resource = "/io/github/noahjeana/fits/weekly_view.ui")]
+pub struct WeeklyView {
+    #[template_child]
+    pub monday_column: TemplateChild<gtk::Box>,
+    #[template_child]
+    pub tuesday_column: TemplateChild<gtk::Box>,
+    #[template_child]
+    pub wednesday_column: TemplateChild<gtk::Box>,
+}
+
+#[glib::object_subclass]
+impl ObjectSubclass for WeeklyView {
+    const NAME: &'static str = "WeeklyView";
+    type Type = super::widgets::WeeklyView;
+    type ParentType = adw::Bin;
+}
+
+impl WidgetImpl for WeeklyView {}
+impl ObjectImpl for WeeklyView {}
+impl BinImpl for WeeklyView {}
+
+#[derive(Default, gtk::CompositeTemplate)]
+#[template(resource = "/io/github/noahjeana/fits/activity.ui")]
+pub struct Activity {
+    #[template_child]
+    pub label: TemplateChild<gtk::Label>,
+}
+
+#[glib::object_subclass]
+impl ObjectSubclass for Activity {
+    const NAME: &'static str = "Activity";
+    type Type = super::widgets::Activity;
+    type ParentType = gtk::Widget;
+}
+
+impl WidgetImpl for Activity {}
+impl ObjectImpl for Activity {}

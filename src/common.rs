@@ -1,5 +1,7 @@
-// Common types used througout the application
+//! Common types used througout the application
 // SPDX-License-Identifier: GPL-3.0-only
+
+use crate::local;
 
 /// Errors that are returned for things that can go wrong with **local** IO
 ///
@@ -15,21 +17,67 @@ pub enum LocalError {
     AlreadyExists,
     /// To be returned when the keyring returns an error
     KeyringError,
+    /// To be returned when loading the config fails
+    ConfigError,
 }
 
 /// Stores all data that is needed at runtime
-pub struct Config {
+#[derive(Debug)]
+pub struct State {
     conn: rusqlite::Connection,
     username: String,
     password: String,
 }
 
-impl Config {
-    pub fn new(conn: rusqlite::Connection, username: String, password: String) -> Config {
-        Config {
+#[derive(serde::Serialize, serde::Deserialize)]
+/// The config for the application. These will be saved in the config file on disk.
+///
+/// ## Difference to [common::State]
+/// Config holds data that is unlikely to change and is not so sensitive that it
+/// should instead be put into the keyring or does not make sense to save into the
+/// database.
+///
+/// See [State] for more information.
+pub struct Config {
+    /// Whether the user is just writing notes (true) or checking and signing
+    /// notes (false).
+    pub is_student: bool,
+}
+
+/// The state for the application.
+///
+/// ## Difference to [common::Config]
+/// State holds data that is obtained at runtime and only valid during runtime,
+/// while Config holds data that you would usually save in a config file (and should
+/// be exposed to a user).
+///
+/// See [Config] for more information.
+impl State {
+    pub fn new(conn: rusqlite::Connection, username: String, password: String) -> State {
+        State {
             conn,
             username,
             password,
         }
+    }
+}
+
+impl Config {
+    pub fn from_file(path: Option<&std::path::Path>) -> Result<Self, LocalError> {
+        let Ok(raw_conf) =
+            std::fs::read_to_string(path.unwrap_or(&local::paths::get_config_path()))
+        else {
+            return Err(LocalError::ConfigError);
+        };
+        let Ok(config) = toml::from_str(&raw_conf) else {
+            return Err(LocalError::ConfigError);
+        };
+        Ok(config)
+    }
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Config { is_student: true }
     }
 }

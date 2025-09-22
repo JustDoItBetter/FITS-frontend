@@ -1,0 +1,75 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $WeeklyView: Adw.Bin {
+  child: Gtk.Box {
+    orientation: horizontal;
+
+    Gtk.Box monday_column {
+      orientation: vertical;
+      vexpand: true;
+
+      Gtk.Label {
+        label: _("Monday");
+      }
+
+      Gtk.Separator {
+        orientation: horizontal;
+      }
+    }
+
+    Gtk.Box tuesday_column {
+      orientation: vertical;
+      vexpand: true;
+
+      Gtk.Label {
+        label: _("Tuesday");
+      }
+    }
+
+    Gtk.Box wednesday_column {
+      orientation: vertical;
+      vexpand: true;
+
+      Gtk.Label {
+        label: _("Wednesday");
+      }
+    }
+
+    Gtk.Box thursday_column {
+      orientation: vertical;
+      vexpand: true;
+
+      Gtk.Label {
+        label: _("Thursday");
+      }
+    }
+
+    Gtk.Box friday_column {
+      orientation: vertical;
+      vexpand: true;
+
+      Gtk.Label {
+        label: _("Friday");
+      }
+    }
+
+    Gtk.Box saturday_column {
+      orientation: vertical;
+      vexpand: true;
+
+      Gtk.Label {
+        label: _("Saturday");
+      }
+    }
+
+    Gtk.Box sunday_column {
+      orientation: vertical;
+      vexpand: true;
+
+      Gtk.Label {
+        label: _("Sunday");
+      }
+    }
+  };
+}

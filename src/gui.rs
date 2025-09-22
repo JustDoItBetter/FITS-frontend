@@ -1,44 +1,50 @@
 // All things necessary for getting some graphical output
 // SPDX-License-Identifier: GPL-3.0-only
 
-use adw::glib;
-use gtk::prelude::GtkWindowExt;
+use crate::local;
 
+use adw::prelude::*;
+
+mod actions;
 mod templates;
+mod widgets;
 
-glib::wrapper! {
-    pub struct InitialSetupWindow(ObjectSubclass<templates::InitialSetupWindow>)
-    @extends adw::ApplicationWindow, gtk::ApplicationWindow, gtk::Window, gtk::Widget,
-    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget,
-    gtk::gio::ActionGroup, gtk::gio::ActionMap, gtk::Native, gtk::Root,
-    gtk::ShortcutManager;
-}
+pub fn run() {
+    gtk::gio::resources_register_include!("compiled.gresources")
+        .expect("Failed to register resources.");
 
-impl InitialSetupWindow {
-    pub fn new(app: &adw::Application) -> Self {
-        glib::Object::builder().property("application", app).build()
+    let app = adw::Application::builder()
+        .application_id(super::APP_ID)
+        .build();
+
+    // Check if everything is there, otherwise prompt for info
+    let (_, config) = local::load_data().unwrap_or_else(|_| {
+        app.connect_activate(build_setup_dialog);
+        app.run();
+        local::load_data().expect("Setup failed. Try again?")
+    });
+
+    if config.is_student {
+        app.connect_activate(build_writing_window);
+        app.run();
+    } else {
+        todo!();
     }
 }
 
 /// Shows the setup dialog, prompting for the username and password.
 ///
-/// TODO: Properly store the credentials in the system keyring
 /// TODO: Check if the credentials are valid before saving them
 pub fn build_setup_dialog(app: &adw::Application) {
-    let window = InitialSetupWindow::new(app);
+    let window = widgets::InitialSetupWindow::new(app);
     window.present();
 }
 
-glib::wrapper! {
-    pub struct FitsWindow(ObjectSubclass<templates::FitsWindow>)
-    @extends adw::ApplicationWindow, gtk::ApplicationWindow, gtk::Window, gtk::Widget,
-    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget,
-    gtk::gio::ActionGroup, gtk::gio::ActionMap, gtk::Native, gtk::Root,
-    gtk::ShortcutManager;
-}
-
-impl FitsWindow {
-    pub fn new(app: &adw::Application) -> Self {
-        glib::Object::builder().property("application", app).build()
-    }
+fn build_writing_window(app: &adw::Application) {
+    let window = widgets::FitsWriterWindow::new(app);
+    let state = local::load_state()
+        .expect("Loading the config failed. This should have been caught earlier.");
+    window.set_state(state);
+    actions::register_writer_actions(app, window.clone());
+    window.present();
 }

@@ -36,6 +36,12 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                               </object>
                             </child>
                             <child>
+                              <object class="AdwEntryRow" id="server_addr">
+                                <property name="title" translatable="yes">Server URL</property>
+                                <property name="tooltip-text" translatable="yes">The server address provided by your employer</property>
+                              </object>
+                            </child>
+                            <child>
                               <object class="AdwEntryRow" id="username_entry">
                                 <property name="title" translatable="yes">Username</property>
                                 <property name="text" translatable="yes">Please enter your username</property>

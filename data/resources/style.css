@@ -1,0 +1,13 @@
+.draggable {
+    background-color: #fff3e0;
+    border: 1px solid #ff9800;
+    border-radius: 4px;
+    padding: 8px;
+    margin: 2px;
+    min-width: 200px;
+    min-height: 40px;
+}
+
+.draggable:hover {
+    background-color: #ffe0b2;
+}

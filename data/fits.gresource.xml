@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gresources>
+  <gresource prefix="/io/github/noahjeana/fits">
+    <file preprocess="xml-stripblanks">initial_setup.ui</file>
+    <file preprocess="xml-stripblanks">writer_window.ui</file>
+    <file preprocess="xml-stripblanks">activity.ui</file>
+    <file preprocess="xml-stripblanks">premade.ui</file>
+    <file>style.css</file>
+  </gresource>
+</gresources>
