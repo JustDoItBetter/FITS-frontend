@@ -19,7 +19,18 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y libdbus-1-dev pkg-config libgtk-4-dev libadwaita-1-dev libsqlite3-dev protobuf-compiler
+        sudo apt install -y \
+          libdbus-1-dev \
+          pkg-config \
+          libgtk-4-dev \
+          libadwaita-1-dev \
+          libsqlite3-dev \
+          protobuf-compiler \
+          libcairo2-dev \
+          libpango1.0-dev \
+          libgdk-pixbuf2.0-dev \
+          libglib2.0-dev \
+          libgraphene-1.0-dev
     
     - name: Build
       run: cargo build --verbose
