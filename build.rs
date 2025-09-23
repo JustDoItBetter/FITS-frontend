@@ -6,4 +6,10 @@ fn main() {
         "data/fits.gresource.xml",
         "compiled.gresources",
     );
+
+    protobuf_codegen::CodeGen::new()
+        .inputs(["report.proto"])
+        .include("data/resources/protobuf")
+        .generate_and_compile()
+        .expect("Protobuf compile failed: ")
 }

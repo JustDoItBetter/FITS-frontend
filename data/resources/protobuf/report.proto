@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package fits;
+
+message WeeklyReport {
+  message Day { repeated Activity activities = 1; }
+  // A time within that week as a Unix timestamp, in UTC
+  uint64 timestamp = 1;
+  repeated Day days = 2;
+}
+
+message Activity { string title = 1; }
