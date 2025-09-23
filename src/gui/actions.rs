@@ -10,7 +10,7 @@ pub fn register_writer_actions(app: &adw::Application, window: super::widgets::F
 
 fn register_about_dialog(app: &adw::Application, window: super::widgets::FitsWriterWindow) {
     let about_dialog: adw::AboutDialog =
-        gtk::Builder::from_resource("/io/github/noahjeana/fits/premade.ui")
+        gtk::Builder::from_resource("/io/github/justdoitbetter/fits/premade.ui")
             .object("about_dialog")
             .expect("Spelling is difficult");
     let about_action = gtk::gio::SimpleAction::new("about", None);

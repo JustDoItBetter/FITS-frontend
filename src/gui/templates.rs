@@ -5,7 +5,7 @@ use crate::{common, local};
 use adw::{glib, prelude::*, subclass::prelude::*};
 
 #[derive(Default, gtk::CompositeTemplate)]
-#[template(resource = "/io/github/noahjeana/fits/initial_setup.ui")]
+#[template(resource = "/io/github/justdoitbetter/fits/initial_setup.ui")]
 pub struct InitialSetupWindow {
     #[template_child]
     pub server_addr: TemplateChild<adw::EntryRow>,
@@ -73,7 +73,7 @@ impl InitialSetupWindow {
 ///
 /// Holds the view of the application for writing
 #[derive(Default, gtk::CompositeTemplate)]
-#[template(resource = "/io/github/noahjeana/fits/writer_window.ui")]
+#[template(resource = "/io/github/justdoitbetter/fits/writer_window.ui")]
 pub struct FitsWriterWindow {
     #[template_child]
     pub main_view: TemplateChild<adw::OverlaySplitView>,
@@ -121,7 +121,7 @@ impl WindowImpl for FitsWriterWindow {}
 impl FitsWriterWindow {
     fn load_css(&self) {
         let css_provider = gtk::CssProvider::new();
-        css_provider.load_from_resource("/io/github/noahjeana/fits/style.css");
+        css_provider.load_from_resource("/io/github/justdoitbetter/fits/style.css");
 
         gtk::style_context_add_provider_for_display(
             &gtk::gdk::Display::default().expect("Could not connect to a display."),
@@ -132,7 +132,7 @@ impl FitsWriterWindow {
 }
 
 #[derive(Default, gtk::CompositeTemplate)]
-#[template(resource = "/io/github/noahjeana/fits/weekly_view.ui")]
+#[template(resource = "/io/github/justdoitbetter/fits/weekly_view.ui")]
 pub struct WeeklyView {
     #[template_child]
     pub monday_column: TemplateChild<gtk::Box>,
@@ -154,7 +154,7 @@ impl ObjectImpl for WeeklyView {}
 impl BinImpl for WeeklyView {}
 
 #[derive(Default, gtk::CompositeTemplate)]
-#[template(resource = "/io/github/noahjeana/fits/activity.ui")]
+#[template(resource = "/io/github/justdoitbetter/fits/activity.ui")]
 pub struct Activity {
     #[template_child]
     pub label: TemplateChild<gtk::Label>,
