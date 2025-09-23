@@ -11,12 +11,18 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y libdbus-1-dev pkg-config libgtk-4-dev libadwaita-1-dev libsqlite3-dev protobuf-compiler
+    
     - name: Build
       run: cargo build --verbose
+      
     - name: Run tests
       run: cargo test --verbose
