@@ -23,9 +23,6 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        # Add newer GTK repository
-        sudo add-apt-repository -y ppa:gnome3-team/gnome3-staging
-        sudo apt update
         sudo apt install -y \
           libdbus-1-dev \
           pkg-config \
@@ -41,6 +38,12 @@ jobs:
     
     - name: Set PKG_CONFIG_PATH
       run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
+    
+    - name: Debug GTK version
+      run: |
+        pkg-config --modversion gtk4 || echo "GTK4 not found"
+        find /usr -name "gtk4.pc" 2>/dev/null || echo "No gtk4.pc found"
+        ls -la /usr/lib/x86_64-linux-gnu/pkgconfig/ | grep gtk
     
     - name: Cache cargo registry
       uses: actions/cache@v4
