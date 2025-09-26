@@ -48,12 +48,6 @@ jobs:
     - name: Set PKG_CONFIG_PATH
       run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
     
-    - name: Debug GTK version
-      run: |
-        pkg-config --modversion gtk4 || echo "GTK4 not found"
-        find /usr -name "gtk4.pc" 2>/dev/null || echo "No gtk4.pc found"
-        ls -la /usr/lib/x86_64-linux-gnu/pkgconfig/ | grep gtk
-    
     - name: Cache cargo registry
       uses: actions/cache@v4
       with:
