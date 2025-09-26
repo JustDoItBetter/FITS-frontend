@@ -30,7 +30,11 @@ jobs:
           libpango1.0-dev \
           libgdk-pixbuf2.0-dev \
           libglib2.0-dev \
-          libgraphene-1.0-dev
+          libgraphene-1.0-dev \
+          libgtk-4-dev
+
+    - name: Set PKG_CONFIG_PATH
+      run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
     
     - name: Build
       run: cargo build --verbose
