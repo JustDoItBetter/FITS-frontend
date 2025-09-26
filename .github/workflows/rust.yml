@@ -23,25 +23,27 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        # Install Flatpak runtime with newer GTK
-        sudo apt install -y flatpak
-        sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-        sudo flatpak install -y flathub org.gnome.Platform//46
+        # First install the universe repository for additional packages
+        sudo apt install -y software-properties-common
+        sudo add-apt-repository universe
+        sudo apt update
         
-        # Install base dependencies
+        # Install GTK4 development packages (these should exist in Ubuntu 24.04)
         sudo apt install -y \
+          build-essential \
           libdbus-1-dev \
           pkg-config \
+          libgtk-4-dev \
+          libgtk-4-1 \
+          gtk-4-examples \
+          libadwaita-1-dev \
           libsqlite3-dev \
           protobuf-compiler \
           libcairo2-dev \
           libpango1.0-dev \
           libgdk-pixbuf2.0-dev \
           libglib2.0-dev \
-          build-essential
-        
-        # Use Flatpak GTK4
-        export PKG_CONFIG_PATH="/var/lib/flatpak/runtime/org.gnome.Platform/x86_64/46/active/files/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig"
+          libgraphene-1.0-dev
     
     - name: Set PKG_CONFIG_PATH
       run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
