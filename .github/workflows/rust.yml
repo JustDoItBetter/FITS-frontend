@@ -1,10 +1,13 @@
 name: Rust
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
+permissions:
+  contents: read
+  packages: read
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,32 +15,51 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y \
-          libdbus-1-dev \
-          pkg-config \
-          libgtk-4-dev \
-          libadwaita-1-dev \
-          libsqlite3-dev \
-          protobuf-compiler \
-          libcairo2-dev \
-          libpango1.0-dev \
-          libgdk-pixbuf2.0-dev \
-          libglib2.0-dev \
-          libgraphene-1.0-dev \
-          libgtk-4-dev
-
-    - name: Set PKG_CONFIG_PATH
-      run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
+    stages:
+      - build
     
-    - name: Build
-      run: cargo build --verbose
+    variables:
+      CARGO_TERM_COLOR: always
+      PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig
+    
+    build:
+      stage: build
+      image: ubuntu:latest
       
-    - name: Run tests
-      run: cargo test --verbose
+      before_script:
+        - apt-get update
+        - apt-get install -y curl build-essential
+        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        - source ~/.cargo/env
+        
+        # Install system dependencies
+        - apt-get install -y \
+            libdbus-1-dev \
+            pkg-config \
+            libgtk-4-dev \
+            libadwaita-1-dev \
+            libsqlite3-dev \
+            protobuf-compiler \
+            libcairo2-dev \
+            libpango1.0-dev \
+            libgdk-pixbuf2.0-dev \
+            libglib2.0-dev \
+            libgraphene-1.0-dev
+      
+      script:
+        - cargo build --verbose
+        - cargo test --verbose
+      
+      cache:
+        key: ${CI_COMMIT_REF_SLUG}
+        paths:
+          - target/
+          - ~/.cargo/registry/
+          - ~/.cargo/git/
+      
+      rules:
+        - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
