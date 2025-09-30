@@ -34,9 +34,6 @@ env_logger = "0.11.8"
 log = "0.4.27"
 # Config format
 toml = { version = "0.9.7", features = ["serde"] }
-# Send and receive things from the server
-protobuf = "4.31.1-release"
 
 [build-dependencies]
 glib-build-tools = "0.21.0"
-protobuf-codegen = "4.31.1-release"
