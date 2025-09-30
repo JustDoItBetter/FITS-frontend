@@ -53,7 +53,7 @@ impl InitialSetupWindow {
             self.toast_overlay.get().add_toast(toast);
         }
 
-        if local::sqlite::create_db().is_err() {
+        if local::db::create_db().is_err() {
             let toast = adw::Toast::builder()
                 .title("Failed to create persistent storage!")
                 .build();

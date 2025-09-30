@@ -26,14 +26,14 @@ version = "1.0.226"
 features = ["derive"]
 
 [dependencies]
-# For storing persistent data
-rusqlite = { version = "0.37.0", features = ["bundled"] }
 # Logger
 env_logger = "0.11.8"
 # Logging
 log = "0.4.27"
 # Config format
 toml = { version = "0.9.7", features = ["serde"] }
+# High-level abstractions over arrow
+datafusion = "50.0"
 
 [build-dependencies]
 glib-build-tools = "0.21.0"

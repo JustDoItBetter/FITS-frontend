@@ -3,16 +3,19 @@
 
 use crate::local;
 
+use gtk::glib;
+use std::future::Future;
+
 /// Errors that are returned for things that can go wrong with **local** IO
 ///
 /// TODO: Implement fmt to be somewhat helpful error messages to be displayed
 #[non_exhaustive]
 #[derive(Debug)]
 pub enum LocalError {
-    /// To be returned by functions where rusqlite returns an error
-    SqliteError,
+    /// To be returned by functions where datafusion returns an error
+    DbError,
     /// To be returned if a path that is expected to exist does not
-    NotYetFound,
+    NotFound,
     /// To be returned when trying to create something that already exists
     AlreadyExists,
     /// To be returned when the keyring returns an error
@@ -22,9 +25,9 @@ pub enum LocalError {
 }
 
 /// Stores all data that is needed at runtime
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct State {
-    conn: rusqlite::Connection,
+    conn: local::db::DbConnector,
     username: String,
     password: String,
 }
@@ -32,7 +35,7 @@ pub struct State {
 #[derive(serde::Serialize, serde::Deserialize)]
 /// The config for the application. These will be saved in the config file on disk.
 ///
-/// ## Difference to [common::State]
+/// ## Difference to [State]
 /// Config holds data that is unlikely to change and is not so sensitive that it
 /// should instead be put into the keyring or does not make sense to save into the
 /// database.
@@ -53,7 +56,7 @@ pub struct Config {
 ///
 /// See [Config] for more information.
 impl State {
-    pub fn new(conn: rusqlite::Connection, username: String, password: String) -> State {
+    pub fn new(conn: local::db::DbConnector, username: String, password: String) -> State {
         State {
             conn,
             username,
@@ -80,4 +83,36 @@ impl Default for Config {
     fn default() -> Self {
         Config { is_student: true }
     }
+}
+
+pub struct WeeklyReport {
+    signed: bool,
+    timestamp: u64,
+    days: Vec<Day>,
+}
+
+pub struct Day {
+    activities: Vec<String>,
+}
+
+// Our own little async runtime, built on glib.
+// ~~stolen~~ borrowed from
+// https://mmstick.github.io/gtkrs-tutorials/1x03-glib-runtime.html
+
+pub fn thread_context() -> glib::MainContext {
+    glib::MainContext::thread_default().unwrap_or_else(|| glib::MainContext::new())
+}
+
+pub fn block_on<F>(future: F) -> F::Output
+where
+    F: Future,
+{
+    thread_context().block_on(future)
+}
+
+pub fn spawn<F>(future: F)
+where
+    F: Future<Output = ()> + 'static,
+{
+    thread_context().spawn_local(future);
 }
