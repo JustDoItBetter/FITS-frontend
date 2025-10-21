@@ -33,6 +33,7 @@ pub fn run() {
         app.connect_activate(move |app| {
             build_writing_window(app, state.clone());
         });
+        app.run();
     }
 }
 
