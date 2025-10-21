@@ -5,9 +5,12 @@ pub use connector::DbConnector;
 
 use crate::{common, local};
 
-use std::sync::{Arc, mpsc};
+use diesel::prelude::*;
+use std::sync::mpsc;
 
 mod connector;
+mod queries;
+pub mod schema;
 
 pub async fn open() -> Result<DbConnector, common::LocalError> {
     let path = local::paths::get_db_path();
@@ -21,16 +24,24 @@ pub struct DbRequest {
 }
 
 pub enum DbCommand {
-    /// Create a backup of the database.
+    /// Create a read with data from the database.
     ///
     /// The range specifies the time for which to export in unix timestamp.
     ///
-    /// The sender will recieve [DbAnswer::Backup] after requesting this.
-    Backup(std::ops::Range<u64>),
+    /// The sender will receive [DbAnswer::Backup] or [DbAnswer::Err] after
+    /// requesting this.
+    ///
+    /// If there is no data in the specified time, Backup will return an empty vec
+    /// but no error.
+    Read(std::ops::Range<i64>),
     /// Write a weekly report to the database.
     ///
     /// Returns either [DbAnswer::Ok] on success or [DbAnswer::Err] on failure
-    SaveData { data: Vec<common::WeeklyReport> },
+    Save { data: Vec<common::WeeklyReport> },
+    /// Create a backup and return it as bytes
+    ///
+    /// Returns either [DbAnswer::Backup] on success or [DbAnswer::Err] on failure
+    Backup,
 }
 
 pub enum DbAnswer {
@@ -38,8 +49,8 @@ pub enum DbAnswer {
     Ok,
     /// Alert that the requested operation did not succeed.
     Err,
-    /// The response to a CreateBackup command.
-    Backup(Vec<datafusion::arrow::record_batch::RecordBatch>),
+    /// The response to a Read.
+    Read(Vec<common::WeeklyReport>),
 }
 
 /// Creates the local sqlite db with the schemas.
@@ -51,22 +62,19 @@ pub fn create_db() -> Result<(), common::LocalError> {
         return Err(common::LocalError::AlreadyExists);
     }
 
-    let Ok(file_stream) = std::fs::File::create(&path) else {
-        log::error!("Failed to create db at {:#?}", &path);
-        return Err(common::LocalError::NotFound);
+    let Some(path) = path.to_str() else {
+        log::error!("DB path is not valid UTF-8");
+        return Err(common::LocalError::DbError);
     };
-    match datafusion::parquet::arrow::ArrowWriter::try_new(
-        file_stream,
-        Arc::new(connector::get_report_schema()),
-        None,
-    ) {
+
+    match SqliteConnection::establish(path) {
         Ok(_) => {
             log::debug!("Successfully loaded db at {:#?}", &path);
             Ok(())
         }
         Err(e) => {
             log::error!("Could not create db at {:#?}", &path);
-            log::error!("Parquet produced the following error: {:#?}", e);
+            log::error!("SQL produced the following error: {:#?}", e);
             Err(common::LocalError::DbError)
         }
     }

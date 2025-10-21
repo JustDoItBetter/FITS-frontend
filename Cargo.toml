@@ -32,8 +32,12 @@ env_logger = "0.11.8"
 log = "0.4.27"
 # Config format
 toml = { version = "0.9.7", features = ["serde"] }
-# High-level abstractions over arrow
-datafusion = "50.0"
+# Database, the final
+diesel = { version = "2.3.2", default-features = false, features = ["sqlite", "returning_clauses_for_sqlite_3_35", "chrono"] }
+# Time and things
+chrono = { version = "0.4.42", features = ["serde"] }
+# Send things over the network
+serde_json = "1.0.145"
 
 [build-dependencies]
 glib-build-tools = "0.21.0"

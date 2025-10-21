@@ -19,7 +19,7 @@ pub fn get_db_path() -> PathBuf {
         // cannot create this the user already has a VERY broken system
         let _ = std::fs::create_dir_all(&path);
     }
-    path.push("data.parquet");
+    path.push("data.sqlite");
     path
 }
 
