@@ -41,7 +41,7 @@ cargo run --example api_health_check
 ./examples/run_health_check.sh
 
 # Enable detailed logging
-RUST_LOG=debug cargo run --example api_health_check
+API_LOG=debug cargo run --example api_health_check
 ```
 
 See [examples/README.md](examples/README.md) for detailed documentation.

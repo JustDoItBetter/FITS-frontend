@@ -66,7 +66,7 @@ The example demonstrates proper error handling for common scenarios:
 Most examples use `env_logger` for detailed request/response logging. Enable debug logging:
 
 ```bash
-RUST_LOG=debug cargo run --example api_health_check
+API_LOG=debug cargo run --example api_health_check
 ```
 
 ## Testing Against Different Servers

@@ -13,6 +13,17 @@ impl ApiConfig {
             base_url,
         }
     }
+
+    /// Create configuration from environment variables
+    /// 
+    /// Looks for FITS_API_BASE_URL environment variable.
+    /// Falls back to http://localhost:8080 if not set.
+    pub fn from_env() -> Self {
+        let base_url = std::env::var("FITS_API_BASE_URL")
+            .unwrap_or_else(|_| "http://localhost:8080".to_string());
+        
+        Self::new(base_url)
+    }
 }
 
 /// Health check response structure
@@ -110,6 +121,15 @@ impl FitsApiClient {
     /// Create a client with production configuration
     pub fn prod_client(base_url: String) -> Self {
         let config = ApiConfig::new(base_url);
+        Self::new(config)
+    }
+
+    /// Create a client using environment variable configuration
+    /// 
+    /// Loads configuration from FITS_API_BASE_URL environment variable.
+    /// This is the recommended way to create clients in applications.
+    pub fn from_env() -> Self {
+        let config = ApiConfig::from_env();
         Self::new(config)
     }
 }
