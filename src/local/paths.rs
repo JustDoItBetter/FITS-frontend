@@ -3,8 +3,10 @@
 
 use std::path::PathBuf;
 
-/// Gets the complete path where the sqlite db SHOULD be
-pub fn get_sqlite_path() -> PathBuf {
+/// Gets the complete path where the db SHOULD be
+///
+/// It also checks if the folder exist and creates it if neccessary
+pub fn get_db_path() -> PathBuf {
     let mut path = match std::env::consts::OS {
         "linux" | "openbsd" | "netbsd" | "freebsd" => get_xdg_data(),
         "windows" => todo!("Windows support is coming soon tm"),

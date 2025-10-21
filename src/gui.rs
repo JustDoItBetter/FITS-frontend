@@ -1,7 +1,7 @@
 // All things necessary for getting some graphical output
 // SPDX-License-Identifier: GPL-3.0-only
 
-use crate::local;
+use crate::{common, local};
 
 use adw::prelude::*;
 
@@ -17,18 +17,22 @@ pub fn run() {
         .application_id(super::APP_ID)
         .build();
 
+    let res = common::block_on(local::load_data());
     // Check if everything is there, otherwise prompt for info
-    let (_, config) = local::load_data().unwrap_or_else(|_| {
+    let (state, config) = res.unwrap_or_else(|_| {
         app.connect_activate(build_setup_dialog);
         app.run();
-        local::load_data().expect("Setup failed. Try again?")
+        common::block_on(local::load_data()).expect("Setup failed. Try again?")
     });
-
     if config.is_student {
-        app.connect_activate(build_writing_window);
-        app.run();
-    } else {
-        todo!();
+        // Need to construct a new app, see
+        // https://github.com/JustDoItBetter/FITS-frontend/issues/19
+        let app = adw::Application::builder()
+            .application_id(super::APP_ID)
+            .build();
+        app.connect_activate(move |app| {
+            build_writing_window(app, state.clone());
+        });
     }
 }
 
@@ -40,10 +44,8 @@ pub fn build_setup_dialog(app: &adw::Application) {
     window.present();
 }
 
-fn build_writing_window(app: &adw::Application) {
+fn build_writing_window(app: &adw::Application, state: common::State) {
     let window = widgets::FitsWriterWindow::new(app);
-    let state = local::load_state()
-        .expect("Loading the config failed. This should have been caught earlier.");
     window.set_state(state);
     actions::register_writer_actions(app, window.clone());
     window.present();
