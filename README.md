@@ -1,7 +1,21 @@
 # FITS
 Fucking IHK tooling sucks
 
-### Project Status - Development Proceeding
+### Quick Start
+```bash
+# Run the health check example
+cargo run --example api_health_check
+
+# Run authentication examples
+cargo run --example api_auth              # Interactive login
+cargo run --example api_auth_logout       # Login + logout flow
+
+# Or use the helper script (if available)
+./examples/run_example.sh
+
+# Enable detailed logging
+RUST_LOG=debug cargo run --example api_health_check
+``` Status - Development Proceeding
 Development is ongoing and continuing. Things should start to happen more and more
 as there is now a somewhat formed idea on what the final software should look like.
 We currently aim for a release before 2026, with release candidates starting at the
@@ -30,7 +44,7 @@ to run it directly).
 
 ## API Examples
 
-FITS includes an example program demonstrating how to interact with the FITS API. This example shows how to make health checks and handle various error scenarios.
+FITS includes example programs demonstrating how to interact with the FITS API. These examples show how to make health checks, authenticate with credentials, and handle various error scenarios.
 
 ### Quick Start
 ```bash

@@ -28,11 +28,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("   API URL: {}", api_url);
     println!("   Log Level: {}", std::env::var("API_LOG").unwrap_or_else(|_| "info".to_string()));
 
-    // Method 1: Using environment variables (recommended)
-    println!("\n📋 Method 1: Using environment configuration (recommended)");
-    let env_client = FitsApiClient::from_env();
+    // Create API client using environment configuration
+    println!("\n📋 Creating API client from environment configuration");
+    let client = FitsApiClient::from_env();
     
-    match env_client.health_check().await {
+    match client.health_check().await {
         Ok(health_response) => {
             println!("✅ Health check successful!");
             println!("   Status: {}", health_response.status);
@@ -44,24 +44,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    // Method 2: Using dev_client convenience function  
-    println!("\n📋 Method 2: Using dev_client() convenience function");
-    let dev_client = FitsApiClient::dev_client();
-
-    match dev_client.health_check().await {
-        Ok(health_response) => {
-            println!("✅ Health check with dev_client successful!");
-            println!("   Status: {}", health_response.status);
-            println!("   Time: {}", health_response.time);
-        }
-        Err(e) => {
-            println!("❌ Health check with dev_client failed: {}", e);
-        }
-    }
-
-    // Method 3: Using the convenience is_healthy() method
-    println!("\n📋 Method 3: Using is_healthy() convenience method");
-    let is_healthy = env_client.is_healthy().await;
+    // Using the convenience is_healthy() method
+    println!("\n📋 Using is_healthy() convenience method");
+    let is_healthy = client.is_healthy().await;
     if is_healthy {
         println!("✅ API is healthy!");
     } else {

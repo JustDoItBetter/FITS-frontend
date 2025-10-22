@@ -9,6 +9,19 @@ Before running these examples, make sure you have:
 1. **FITS API Server Running**: The examples assume a FITS API server is running on `http://localhost:8080`
 2. **Rust Environment**: Ensure you have Rust installed with Cargo
 
+## Quick Start
+
+```bash
+# Run the health check example
+cargo run --example api_health_check
+
+# Run authentication examples  
+cargo run --example api_auth              # Basic login test
+cargo run --example api_auth_logout       # Complete login/logout flow
+
+# Enable detailed logging for any example
+RUST_LOG=debug cargo run --example api_health_check
+```
 
 ## Available Examples
 
@@ -27,6 +40,39 @@ cargo run --example api_health_check
 - Basic error handling
 - Using convenience methods like `is_healthy()`
 
+### Authentication Examples
+
+#### Basic Authentication (`api_auth.rs`)
+
+Interactive example that prompts for username and password to test login functionality.
+
+**Run with:**
+```bash
+cargo run --example api_auth
+```
+
+**Features demonstrated:**
+- Login with username/password credentials
+- Error handling for invalid credentials
+- Server error responses
+- Credential verification convenience method
+
+#### Complete Authentication Flow (`api_auth_logout.rs`)
+
+Interactive example demonstrating complete login and logout flow.
+
+**Run with:**
+```bash
+cargo run --example api_auth_logout
+```
+
+**Features demonstrated:**
+- Complete authentication workflow (login → logout)
+- Interactive credential input
+- Login response handling
+- Logout response handling
+- Error handling for both operations
+
 
 
 ## Usage Patterns
@@ -37,7 +83,8 @@ use fits::api::FitsApiClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = FitsApiClient::dev_client();
+    // Load configuration from environment variables or .env file
+    let client = FitsApiClient::from_env();
     let health = client.health_check().await?;
     println!("API Status: {}", health.status);
     Ok(())
@@ -46,11 +93,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
 
-### Production Configuration
+### Custom Configuration
 ```rust
-use fits::api::FitsApiClient;
+use fits::api::{FitsApiClient, ApiConfig};
 
-let client = FitsApiClient::prod_client("https://api.production.example.com".to_string());
+// Create client with custom configuration
+let config = ApiConfig::new("https://api.yourdomain.com".to_string());
+let client = FitsApiClient::new(config);
+```
+
+### Authentication
+```rust
+use fits::api::auth::AuthClient;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Load configuration from environment variables or .env file
+    let auth_client = AuthClient::from_env();
+    
+    // Login with credentials
+    let login_response = auth_client.login("username", "password").await?;
+    
+    if login_response.success {
+        println!("Login successful!");
+        if let Some(token) = login_response.token {
+            println!("Token: {}", token);
+        }
+    }
+    
+    Ok(())
+}
 ```
 
 ## Error Handling
@@ -66,7 +138,7 @@ The example demonstrates proper error handling for common scenarios:
 Most examples use `env_logger` for detailed request/response logging. Enable debug logging:
 
 ```bash
-API_LOG=debug cargo run --example api_health_check
+RUST_LOG=debug cargo run --example api_health_check
 ```
 
 ## Testing Against Different Servers

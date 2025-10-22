@@ -51,3 +51,11 @@ glib-build-tools = "0.21.0"
 [[example]]
 name = "api_health_check"
 path = "examples/api_health_check.rs"
+
+[[example]]
+name = "api_auth"
+path = "examples/api_auth.rs"
+
+[[example]]
+name = "api_auth_logout"
+path = "examples/api_auth_logout.rs"

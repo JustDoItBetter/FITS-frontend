@@ -9,19 +9,17 @@ pub struct ApiConfig {
 
 impl ApiConfig {
     pub fn new(base_url: String) -> Self {
-        Self {
-            base_url,
-        }
+        Self { base_url }
     }
 
     /// Create configuration from environment variables
-    /// 
+    ///
     /// Looks for FITS_API_BASE_URL environment variable.
     /// Falls back to http://localhost:8080 if not set.
     pub fn from_env() -> Self {
         let base_url = std::env::var("FITS_API_BASE_URL")
             .unwrap_or_else(|_| "http://localhost:8080".to_string());
-        
+
         Self::new(base_url)
     }
 }
@@ -50,22 +48,21 @@ impl FitsApiClient {
     }
 
     /// Health check endpoint - GET /health
-    /// 
+    ///
     /// Returns the API health status and current time
     pub async fn health_check(&self) -> Result<HealthResponse, ReqwestError> {
         let url = format!("{}/health", self.config.base_url);
-        
-        let response = self.client
+
+        let response = self
+            .client
             .get(&url)
             .send()
             .await?
             .json::<HealthResponse>()
             .await?;
-            
+
         Ok(response)
     }
-
-
 }
 
 /// Custom error types for the API client
@@ -110,24 +107,12 @@ impl FitsApiClient {
     }
 }
 
-/// Example usage and helper functions
+/// Additional constructors
 impl FitsApiClient {
-    /// Create a client with common development configuration
-    pub fn dev_client() -> Self {
-        let config = ApiConfig::new("http://localhost:8080".to_string());
-        Self::new(config)
-    }
-
-    /// Create a client with production configuration
-    pub fn prod_client(base_url: String) -> Self {
-        let config = ApiConfig::new(base_url);
-        Self::new(config)
-    }
-
     /// Create a client using environment variable configuration
-    /// 
+    ///
     /// Loads configuration from FITS_API_BASE_URL environment variable.
-    /// This is the recommended way to create clients in applications.
+    /// Falls back to http://localhost:8080 if not set.
     pub fn from_env() -> Self {
         let config = ApiConfig::from_env();
         Self::new(config)
@@ -146,10 +131,18 @@ mod tests {
 
     #[test]
     fn test_client_creation() {
-        let client = FitsApiClient::dev_client();
-        assert_eq!(client.config.base_url, "http://localhost:8080");
-        
-        let prod_client = FitsApiClient::prod_client("https://api.example.com".to_string());
-        assert_eq!(prod_client.config.base_url, "https://api.example.com");
+        // Test creating client with explicit config
+        let config = ApiConfig::new("https://api.example.com".to_string());
+        let client = FitsApiClient::new(config);
+        assert_eq!(client.config.base_url, "https://api.example.com");
+    }
+
+    #[test]
+    fn test_from_env() {
+        // Test creating client from environment (will use default if not set)
+        let env_client = FitsApiClient::from_env();
+        // Should use default if FITS_API_BASE_URL is not set
+        assert_eq!(env_client.config.base_url, "http://localhost:8080");
     }
 }
+
