@@ -54,24 +54,49 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(login_response) => {
             println!("✅ Login successful!");
             println!("   Success: {}", login_response.success);
-            
-            if let Some(token) = &login_response.token {
-                println!("   Token: {}", token);
+            if let Some(msg) = &login_response.message {
+                println!("   Message: {}", msg);
             }
-            
+            if let Some(token) = &login_response.access_token {
+                println!("   Access Token: {}", token);
+            }
+            if let Some(refresh) = &login_response.refresh_token {
+                println!("   Refresh Token: {}", refresh);
+            }
+            if let Some(exp) = &login_response.expires_in {
+                println!("   Expires In: {} seconds", exp);
+            }
+            if let Some(role) = &login_response.role {
+                println!("   Role: {}", role);
+            }
+            if let Some(ttype) = &login_response.token_type {
+                println!("   Token Type: {}", ttype);
+            }
+            if let Some(uid) = &login_response.user_id {
+                println!("   User ID: {}", uid);
+            }
             if let Some(user) = &login_response.user {
-                println!("   User ID: {}", user.id);
-                println!("   Username: {}", user.username);
+                println!("   User Info:");
+                println!("      ID: {}", user.id);
+                println!("      Username: {}", user.username);
                 if let Some(email) = &user.email {
-                    println!("   Email: {}", email);
+                    println!("      Email: {}", email);
                 }
             }
-            
             true
         }
         Err(e) => {
             println!("❌ Login failed: {}", e);
             match e {
+                fits::api::auth::AuthError::BadRequest(ref err) => {
+                    println!("   💡 Bad request: {}", err.details.as_deref().unwrap_or(&err.error));
+                }
+                fits::api::auth::AuthError::Unauthorized(ref err) => {
+                    println!("   💡 Unauthorized: {}", err.details.as_deref().unwrap_or(&err.error));
+                }
+                fits::api::auth::AuthError::UnprocessableEntity(ref err) => {
+                    println!("   💡 Unprocessable entity: {}", err.details.as_deref().unwrap_or(&err.error));
+                }
                 fits::api::auth::AuthError::InvalidCredentials(_) => {
                     println!("   💡 Please check your username and password");
                 }
@@ -85,7 +110,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("   💡 Check server status and network connectivity");
                 }
             }
-            
             false
         }
     };

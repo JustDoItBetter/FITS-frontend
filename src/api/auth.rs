@@ -1,3 +1,12 @@
+/// Refresh token request structure
+#[derive(Debug, Serialize)]
+pub struct RefreshTokenRequest {
+    pub refresh_token: String,
+}
+
+/// Refresh token response structure (same as login)
+pub type RefreshTokenResponse = LoginResponse;
+
 use reqwest::{Client, Error as ReqwestError};
 use serde::{Deserialize, Serialize};
 
@@ -12,7 +21,13 @@ pub struct LoginRequest {
 #[derive(Debug, Deserialize)]
 pub struct LoginResponse {
     pub success: bool,
-    pub token: Option<String>,
+    pub message: Option<String>,
+    pub access_token: Option<String>,
+    pub refresh_token: Option<String>,
+    pub expires_in: Option<u32>,
+    pub role: Option<String>,
+    pub token_type: Option<String>,
+    pub user_id: Option<String>,
     pub user: Option<UserInfo>,
 }
 
@@ -45,6 +60,9 @@ pub struct ErrorResponse {
 pub enum AuthError {
     Request(ReqwestError),
     InvalidCredentials(String),
+    BadRequest(ErrorResponse),
+    Unauthorized(ErrorResponse),
+    UnprocessableEntity(ErrorResponse),
     ServerError { status: u16, message: String },
     ParseError(String),
 }
@@ -54,6 +72,9 @@ impl std::fmt::Display for AuthError {
         match self {
             AuthError::Request(e) => write!(f, "Request error: {}", e),
             AuthError::InvalidCredentials(msg) => write!(f, "Invalid credentials: {}", msg),
+            AuthError::BadRequest(err) => write!(f, "Bad request: {}", err.details.as_deref().unwrap_or(&err.error)),
+            AuthError::Unauthorized(err) => write!(f, "Unauthorized: {}", err.details.as_deref().unwrap_or(&err.error)),
+            AuthError::UnprocessableEntity(err) => write!(f, "Unprocessable entity: {}", err.details.as_deref().unwrap_or(&err.error)),
             AuthError::ServerError { status, message } => {
                 write!(f, "Server error {}: {}", status, message)
             }
@@ -85,6 +106,34 @@ pub struct AuthClient {
 }
 
 impl AuthClient {
+    /// Refresh access token using a refresh token
+    pub async fn refresh_token(&self, refresh_token: &str) -> Result<RefreshTokenResponse, AuthError> {
+        let req = RefreshTokenRequest {
+            refresh_token: refresh_token.to_string(),
+        };
+        let url = format!("{}/api/v1/auth/refresh", self.base_url);
+        let response = self.client.post(&url).json(&req).send().await?;
+        let status = response.status();
+        if status.is_success() {
+            let refresh_response = response.json::<RefreshTokenResponse>().await.map_err(|e| {
+                AuthError::ParseError(format!("Failed to parse refresh response: {}", e))
+            })?;
+            Ok(refresh_response)
+        } else {
+            let error_response = response.json::<ErrorResponse>().await.map_err(|e| {
+                AuthError::ParseError(format!("Failed to parse error response: {}", e))
+            })?;
+            match status.as_u16() {
+                400 => Err(AuthError::BadRequest(error_response)),
+                401 => Err(AuthError::Unauthorized(error_response)),
+                422 => Err(AuthError::UnprocessableEntity(error_response)),
+                _ => Err(AuthError::ServerError {
+                    status: status.as_u16(),
+                    message: error_response.error,
+                }),
+            }
+        }
+    }
     /// Create a new authentication client
     pub fn new(base_url: String) -> Self {
         Self {
@@ -170,6 +219,52 @@ impl AuthClient {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
+    #[test]
+    fn test_refresh_token_request_serialization() {
+        let req = RefreshTokenRequest {
+            refresh_token: "my_refresh_token".to_string(),
+        };
+        let json = serde_json::to_string(&req).unwrap();
+        assert!(json.contains("my_refresh_token"));
+    }
+
+    #[test]
+    fn test_refresh_token_response_deserialization() {
+        let data = json!({
+            "success": true,
+            "message": "operation successful",
+            "access_token": "eyJhbGc...",
+            "refresh_token": "eyJhbGc...",
+            "expires_in": 3600,
+            "role": "student",
+            "token_type": "Bearer",
+            "user_id": "550e8400-e29b-41d4-a716-446655440000"
+        });
+        let resp: RefreshTokenResponse = serde_json::from_value(data).unwrap();
+        assert_eq!(resp.success, true);
+        assert_eq!(resp.access_token.as_deref(), Some("eyJhbGc..."));
+        assert_eq!(resp.refresh_token.as_deref(), Some("eyJhbGc..."));
+        assert_eq!(resp.expires_in, Some(3600));
+        assert_eq!(resp.role.as_deref(), Some("student"));
+        assert_eq!(resp.token_type.as_deref(), Some("Bearer"));
+        assert_eq!(resp.user_id.as_deref(), Some("550e8400-e29b-41d4-a716-446655440000"));
+    }
+
+    #[test]
+    fn test_refresh_token_error_response_deserialization() {
+        let data = json!({
+            "code": 400,
+            "details": "field validation failed",
+            "error": "invalid request",
+            "success": false
+        });
+        let resp: ErrorResponse = serde_json::from_value(data).unwrap();
+        assert_eq!(resp.code, 400);
+        assert_eq!(resp.details.as_deref(), Some("field validation failed"));
+        assert_eq!(resp.error, "invalid request");
+        assert_eq!(resp.success, false);
+    }
 
     #[test]
     fn test_login_request_serialization() {

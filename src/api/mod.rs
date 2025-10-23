@@ -39,7 +39,7 @@ pub mod auth;
 ///     match auth_client.login("username", "password").await {
 ///         Ok(login_response) => {
 ///             if login_response.success {
-///                 println!("Login successful! Token: {:?}", login_response.token);
+///                 println!("Login successful! Access Token: {:?}", login_response.access_token);
 ///             }
 ///         }
 ///         Err(e) => {
