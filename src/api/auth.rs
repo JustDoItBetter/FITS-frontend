@@ -72,9 +72,21 @@ impl std::fmt::Display for AuthError {
         match self {
             AuthError::Request(e) => write!(f, "Request error: {}", e),
             AuthError::InvalidCredentials(msg) => write!(f, "Invalid credentials: {}", msg),
-            AuthError::BadRequest(err) => write!(f, "Bad request: {}", err.details.as_deref().unwrap_or(&err.error)),
-            AuthError::Unauthorized(err) => write!(f, "Unauthorized: {}", err.details.as_deref().unwrap_or(&err.error)),
-            AuthError::UnprocessableEntity(err) => write!(f, "Unprocessable entity: {}", err.details.as_deref().unwrap_or(&err.error)),
+            AuthError::BadRequest(err) => write!(
+                f,
+                "Bad request: {}",
+                err.details.as_deref().unwrap_or(&err.error)
+            ),
+            AuthError::Unauthorized(err) => write!(
+                f,
+                "Unauthorized: {}",
+                err.details.as_deref().unwrap_or(&err.error)
+            ),
+            AuthError::UnprocessableEntity(err) => write!(
+                f,
+                "Unprocessable entity: {}",
+                err.details.as_deref().unwrap_or(&err.error)
+            ),
             AuthError::ServerError { status, message } => {
                 write!(f, "Server error {}: {}", status, message)
             }
@@ -107,7 +119,10 @@ pub struct AuthClient {
 
 impl AuthClient {
     /// Refresh access token using a refresh token
-    pub async fn refresh_token(&self, refresh_token: &str) -> Result<RefreshTokenResponse, AuthError> {
+    pub async fn refresh_token(
+        &self,
+        refresh_token: &str,
+    ) -> Result<RefreshTokenResponse, AuthError> {
         let req = RefreshTokenRequest {
             refresh_token: refresh_token.to_string(),
         };
@@ -248,7 +263,10 @@ mod tests {
         assert_eq!(resp.expires_in, Some(3600));
         assert_eq!(resp.role.as_deref(), Some("student"));
         assert_eq!(resp.token_type.as_deref(), Some("Bearer"));
-        assert_eq!(resp.user_id.as_deref(), Some("550e8400-e29b-41d4-a716-446655440000"));
+        assert_eq!(
+            resp.user_id.as_deref(),
+            Some("550e8400-e29b-41d4-a716-446655440000")
+        );
     }
 
     #[test]
@@ -307,11 +325,15 @@ mod tests {
 
     #[test]
     fn test_logout_response_deserialization() {
-        let json = r#"{"success":true,"message":"Logged out successfully","data":"session_cleared"}"#;
+        let json =
+            r#"{"success":true,"message":"Logged out successfully","data":"session_cleared"}"#;
         let logout_response: LogoutResponse = serde_json::from_str(json).unwrap();
 
         assert!(logout_response.success);
-        assert_eq!(logout_response.message, Some("Logged out successfully".to_string()));
+        assert_eq!(
+            logout_response.message,
+            Some("Logged out successfully".to_string())
+        );
         assert_eq!(logout_response.data, Some("session_cleared".to_string()));
     }
 
@@ -331,7 +353,10 @@ mod tests {
         let logout_response: LogoutResponse = serde_json::from_str(json).unwrap();
 
         assert!(!logout_response.success);
-        assert_eq!(logout_response.message, Some("Session already expired".to_string()));
+        assert_eq!(
+            logout_response.message,
+            Some("Session already expired".to_string())
+        );
         assert_eq!(logout_response.data, None);
     }
 }
