@@ -50,6 +50,8 @@ impl FitsApiClient {
     /// Health check endpoint - GET /health
     ///
     /// Returns the API health status and current time
+    // TODO: Check HTTP status before parsing JSON to provide better error messages
+    // TODO: Use ApiError instead of ReqwestError for consistency
     pub async fn health_check(&self) -> Result<HealthResponse, ReqwestError> {
         let url = format!("{}/health", self.config.base_url);
 
@@ -66,6 +68,7 @@ impl FitsApiClient {
 }
 
 /// Custom error types for the API client
+// TODO: This error type is currently unused - either use it in health_check() or remove it
 #[derive(Debug)]
 pub enum ApiError {
     Request(ReqwestError),

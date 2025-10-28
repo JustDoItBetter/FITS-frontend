@@ -1,3 +1,4 @@
+// FIXME: Imports should be at the top of the file before type definitions
 /// Refresh token request structure
 #[derive(Debug, Serialize)]
 pub struct RefreshTokenRequest {
@@ -203,6 +204,7 @@ impl AuthClient {
             }
         }
     }
+    // TODO: Improve error handling to match login() and refresh_token() (distinguish 400, 401, 422)
     pub async fn logout(&self) -> Result<LogoutResponse, AuthError> {
         let url = format!("{}/api/v1/auth/logout", self.base_url);
 
@@ -211,12 +213,15 @@ impl AuthClient {
         let status = response.status();
 
         if status.is_success() {
+            // FIXME: Typo - "logut_response" should be "logout_response"
             let logut_response = response.json::<LogoutResponse>().await.map_err(|e| {
+                // FIXME: Typo - "reespnse" should be "response", and message should say "logout" not "login"
                 AuthError::ParseError(format!("Failed to parse login reespnse: {}", e))
             })?;
             Ok(logut_response)
         } else {
             let error_response = response.json::<ErrorResponse>().await.map_err(|e| {
+                // FIXME: Typo - "reespnse" should be "response", and message should say "logout" not "login"
                 AuthError::ParseError(format!("Failed to parse login reespnse: {}", e))
             })?;
             Err(AuthError::ServerError {
