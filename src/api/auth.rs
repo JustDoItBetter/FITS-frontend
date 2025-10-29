@@ -1,4 +1,6 @@
-// FIXME: Imports should be at the top of the file before type definitions
+use reqwest::{Client, Error as ReqwestError};
+use serde::{Deserialize, Serialize};
+
 /// Refresh token request structure
 #[derive(Debug, Serialize)]
 pub struct RefreshTokenRequest {
@@ -7,9 +9,6 @@ pub struct RefreshTokenRequest {
 
 /// Refresh token response structure (same as login)
 pub type RefreshTokenResponse = LoginResponse;
-
-use reqwest::{Client, Error as ReqwestError};
-use serde::{Deserialize, Serialize};
 
 /// Login request structure
 #[derive(Debug, Serialize)]
@@ -204,7 +203,7 @@ impl AuthClient {
             }
         }
     }
-    // TODO: Improve error handling to match login() and refresh_token() (distinguish 400, 401, 422)
+
     pub async fn logout(&self) -> Result<LogoutResponse, AuthError> {
         let url = format!("{}/api/v1/auth/logout", self.base_url);
 
@@ -213,21 +212,23 @@ impl AuthClient {
         let status = response.status();
 
         if status.is_success() {
-            // FIXME: Typo - "logut_response" should be "logout_response"
-            let logut_response = response.json::<LogoutResponse>().await.map_err(|e| {
-                // FIXME: Typo - "reespnse" should be "response", and message should say "logout" not "login"
-                AuthError::ParseError(format!("Failed to parse login reespnse: {}", e))
+            let logout_response = response.json::<LogoutResponse>().await.map_err(|e| {
+                AuthError::ParseError(format!("Failed to parse logout response: {}", e))
             })?;
-            Ok(logut_response)
+            Ok(logout_response)
         } else {
             let error_response = response.json::<ErrorResponse>().await.map_err(|e| {
-                // FIXME: Typo - "reespnse" should be "response", and message should say "logout" not "login"
-                AuthError::ParseError(format!("Failed to parse login reespnse: {}", e))
+                AuthError::ParseError(format!("Failed to parse logout error response: {}", e))
             })?;
-            Err(AuthError::ServerError {
-                status: status.as_u16(),
-                message: error_response.error,
-            })
+            match status.as_u16() {
+                400 => Err(AuthError::BadRequest(error_response)),
+                401 => Err(AuthError::Unauthorized(error_response)),
+                422 => Err(AuthError::UnprocessableEntity(error_response)),
+                _ => Err(AuthError::ServerError {
+                    status: status.as_u16(),
+                    message: error_response.error,
+                }),
+            }
         }
     }
 

@@ -40,7 +40,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Err(e) => {
             println!("❌ Health check failed: {}", e);
-            println!("   Make sure the FITS API server is running on {}", api_url);
+            match e {
+                fits::api::ApiError::Http { status, .. } => {
+                    println!("   💡 Server returned HTTP status {}", status);
+                }
+                fits::api::ApiError::Request(_) => {
+                    println!("   💡 Make sure the FITS API server is running on {}", api_url);
+                }
+            }
         }
     }
 

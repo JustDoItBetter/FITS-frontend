@@ -50,25 +50,30 @@ impl FitsApiClient {
     /// Health check endpoint - GET /health
     ///
     /// Returns the API health status and current time
-    // TODO: Check HTTP status before parsing JSON to provide better error messages
-    // TODO: Use ApiError instead of ReqwestError for consistency
-    pub async fn health_check(&self) -> Result<HealthResponse, ReqwestError> {
+    pub async fn health_check(&self) -> Result<HealthResponse, ApiError> {
         let url = format!("{}/health", self.config.base_url);
 
         let response = self
             .client
             .get(&url)
             .send()
-            .await?
-            .json::<HealthResponse>()
             .await?;
 
-        Ok(response)
+        let status = response.status();
+        
+        if status.is_success() {
+            let health_response = response.json::<HealthResponse>().await?;
+            Ok(health_response)
+        } else {
+            Err(ApiError::Http {
+                status: status.as_u16(),
+                message: format!("Health check failed with status {}", status),
+            })
+        }
     }
 }
 
 /// Custom error types for the API client
-// TODO: This error type is currently unused - either use it in health_check() or remove it
 #[derive(Debug)]
 pub enum ApiError {
     Request(ReqwestError),
