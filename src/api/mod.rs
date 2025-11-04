@@ -51,7 +51,9 @@ pub mod auth;
 /// }
 /// ```
 pub mod handler;
+pub mod invitations;
+pub mod signing;
 
 // Re-export main types for convenience
-pub use handler::{FitsApiClient, ApiConfig, ApiError, HealthResponse};
-pub use auth::{AuthClient, LoginRequest, LoginResponse, LogoutResponse, UserInfo, AuthError};
+pub use auth::{AuthClient, AuthError, LoginRequest, LoginResponse, LogoutResponse, UserInfo};
+pub use handler::{ApiConfig, ApiError, FitsApiClient, HealthResponse};

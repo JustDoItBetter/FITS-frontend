@@ -4,4 +4,7 @@
 pub mod api;
 
 // Re-export commonly used types for convenience
-pub use api::{FitsApiClient, ApiConfig, ApiError, HealthResponse, AuthClient, LoginRequest, LoginResponse, LogoutResponse, UserInfo, AuthError};
+pub use api::{
+    ApiConfig, ApiError, AuthClient, AuthError, FitsApiClient, HealthResponse, LoginRequest,
+    LoginResponse, LogoutResponse, UserInfo,
+};

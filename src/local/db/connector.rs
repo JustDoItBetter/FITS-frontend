@@ -7,8 +7,8 @@ use super::{DbAnswer, DbCommand, DbRequest};
 use diesel::prelude::*;
 
 use std::fmt::Debug;
-use std::sync::mpsc;
 use std::sync::Arc;
+use std::sync::mpsc;
 
 /// Wrapper over a [mpsc::Sender] for convenient communication with the database on
 /// a separate thread.

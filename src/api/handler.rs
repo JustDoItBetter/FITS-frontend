@@ -53,14 +53,10 @@ impl FitsApiClient {
     pub async fn health_check(&self) -> Result<HealthResponse, ApiError> {
         let url = format!("{}/health", self.config.base_url);
 
-        let response = self
-            .client
-            .get(&url)
-            .send()
-            .await?;
+        let response = self.client.get(&url).send().await?;
 
         let status = response.status();
-        
+
         if status.is_success() {
             let health_response = response.json::<HealthResponse>().await?;
             Ok(health_response)
@@ -153,4 +149,3 @@ mod tests {
         assert_eq!(env_client.config.base_url, "http://localhost:8080");
     }
 }
-

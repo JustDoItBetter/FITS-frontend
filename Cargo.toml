@@ -39,7 +39,7 @@ chrono = { version = "0.4.42", features = ["serde"] }
 # Send things over the network
 serde_json = "1.0.145"
 # HTTP client for API calls
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.12", features = ["json", "multipart"] }
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }
 # Environment variable loading
@@ -59,3 +59,15 @@ path = "examples/api_auth.rs"
 [[example]]
 name = "api_auth_logout"
 path = "examples/api_auth_logout.rs"
+
+[[example]]
+name = "api_auth_refresh"
+path = "examples/api_auth_refresh.rs"
+
+[[example]]
+name = "api_signing"
+path = "examples/api_signing.rs"
+
+[[example]]
+name = "api_invitations"
+path = "examples/api_invitations.rs"

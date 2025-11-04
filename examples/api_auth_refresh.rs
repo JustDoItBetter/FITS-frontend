@@ -1,9 +1,8 @@
 /// Example: Refresh access token with FITS API
-/// 
+///
 /// This example demonstrates how to refresh an access token using a refresh token.
-/// 
+///
 /// Run with: `cargo run --example api_auth_refresh`
-
 use fits::api::auth::AuthClient;
 use std::io::{self, Write};
 
@@ -15,8 +14,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🔄 FITS API Token Refresh Example");
     println!("==================================");
 
-    let api_url = std::env::var("FITS_API_BASE_URL")
-        .unwrap_or_else(|_| "http://localhost:8080".to_string());
+    let api_url =
+        std::env::var("FITS_API_BASE_URL").unwrap_or_else(|_| "http://localhost:8080".to_string());
     println!("🔧 API URL: {}", api_url);
 
     let auth_client = AuthClient::from_env();
@@ -58,19 +57,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ Token refresh failed: {}", e);
             match e {
                 fits::api::auth::AuthError::BadRequest(ref err) => {
-                    println!("   💡 Bad request: {}", err.details.as_deref().unwrap_or(&err.error));
+                    println!(
+                        "   💡 Bad request: {}",
+                        err.details.as_deref().unwrap_or(&err.error)
+                    );
                 }
                 fits::api::auth::AuthError::Unauthorized(ref err) => {
-                    println!("   💡 Unauthorized: {}", err.details.as_deref().unwrap_or(&err.error));
+                    println!(
+                        "   💡 Unauthorized: {}",
+                        err.details.as_deref().unwrap_or(&err.error)
+                    );
                 }
                 fits::api::auth::AuthError::UnprocessableEntity(ref err) => {
-                    println!("   💡 Unprocessable entity: {}", err.details.as_deref().unwrap_or(&err.error));
+                    println!(
+                        "   💡 Unprocessable entity: {}",
+                        err.details.as_deref().unwrap_or(&err.error)
+                    );
                 }
                 fits::api::auth::AuthError::ServerError { status, .. } => {
                     println!("   💡 Server returned HTTP {}", status);
                 }
                 fits::api::auth::AuthError::Request(_) => {
-                    println!("   💡 Check if the FITS API server is running on {}", api_url);
+                    println!(
+                        "   💡 Check if the FITS API server is running on {}",
+                        api_url
+                    );
                 }
                 _ => {
                     println!("   💡 Check server status and network connectivity");
