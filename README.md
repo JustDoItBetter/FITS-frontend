@@ -38,7 +38,7 @@ through your preferred package manager.
 We currently require at least Sqlite 3.35, GTK 4.14 and Rust TODO
 
 Once you are set up with your dependencies, simply run
-`git clone https://github.com/NoahJeanA/FITS.git`, then
+`git clone https://github.com/JustDoItBetter/FITS-frontend.git`, then
 `cd FITS` and finally `cargo build --release` (or `cargo run --release`
 to run it directly).
 

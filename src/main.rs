@@ -19,7 +19,7 @@ pub mod common;
 pub mod gui;
 pub mod local;
 
-pub const APP_ID: &str = "io.github.NoahJeanA.fits";
+pub const APP_ID: &str = "io.github.JustDoItBetter.fits";
 
 fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().filter_or("FITS_LOG", "warn")).init();
