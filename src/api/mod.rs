@@ -35,12 +35,10 @@ pub mod auth;
 ///     // Create authentication client
 ///     let auth_client = AuthClient::from_env();
 ///     
-///     // Login with credentials (this would require valid credentials)
+///     // Login with credentials - returns LoginData directly on success
 ///     match auth_client.login("username", "password").await {
-///         Ok(login_response) => {
-///             if login_response.success {
-///                 println!("Login successful! Access Token: {:?}", login_response.access_token);
-///             }
+///         Ok(login_data) => {
+///             println!("Login successful! Access Token: {:?}", login_data.access_token);
 ///         }
 ///         Err(e) => {
 ///             println!("Login failed: {}", e);
@@ -55,5 +53,5 @@ pub mod invitations;
 pub mod signing;
 
 // Re-export main types for convenience
-pub use auth::{AuthClient, AuthError, LoginRequest, LoginResponse, LogoutResponse, UserInfo};
+pub use auth::{AuthClient, AuthError, LoginData, LoginRequest, LoginResponse, LogoutResponse, RefreshTokenData, UserInfo};
 pub use handler::{ApiConfig, ApiError, FitsApiClient, HealthResponse};

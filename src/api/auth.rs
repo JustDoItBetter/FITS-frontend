@@ -10,6 +10,9 @@ pub struct RefreshTokenRequest {
 /// Refresh token response structure (same as login)
 pub type RefreshTokenResponse = LoginResponse;
 
+/// Refresh token data structure (same as login data)
+pub type RefreshTokenData = LoginData;
+
 /// Login request structure
 #[derive(Debug, Serialize)]
 pub struct LoginRequest {
@@ -21,6 +24,17 @@ pub struct LoginRequest {
 #[derive(Debug, Deserialize)]
 pub struct LoginResponse {
     pub success: bool,
+    pub message: Option<String>,
+    pub access_token: Option<String>,
+    pub refresh_token: Option<String>,
+    pub expires_in: Option<u32>,
+    pub role: Option<String>,
+    pub token_type: Option<String>,
+    pub user_id: Option<String>,
+    pub user: Option<UserInfo>,
+}
+#[derive(Debug, Deserialize)]
+pub struct LoginData {
     pub message: Option<String>,
     pub access_token: Option<String>,
     pub refresh_token: Option<String>,
@@ -119,10 +133,13 @@ pub struct AuthClient {
 
 impl AuthClient {
     /// Refresh access token using a refresh token
+    ///
+    /// Returns the refresh token data with new tokens on success.
+    /// The success field is checked internally, so you only get RefreshTokenData if refresh succeeds.
     pub async fn refresh_token(
         &self,
         refresh_token: &str,
-    ) -> Result<RefreshTokenResponse, AuthError> {
+    ) -> Result<RefreshTokenData, AuthError> {
         let req = RefreshTokenRequest {
             refresh_token: refresh_token.to_string(),
         };
@@ -133,7 +150,28 @@ impl AuthClient {
             let refresh_response = response.json::<RefreshTokenResponse>().await.map_err(|e| {
                 AuthError::ParseError(format!("Failed to parse refresh response: {}", e))
             })?;
-            Ok(refresh_response)
+            
+            // Check the success field from the API response
+            if !refresh_response.success {
+                return Err(AuthError::Unauthorized(ErrorResponse {
+                    success: false,
+                    error: "Token refresh failed".to_string(),
+                    details: refresh_response.message,
+                    code: 401,
+                }));
+            }
+
+            // Convert RefreshTokenResponse to RefreshTokenData
+            Ok(RefreshTokenData {
+                message: refresh_response.message,
+                access_token: refresh_response.access_token,
+                refresh_token: refresh_response.refresh_token,
+                expires_in: refresh_response.expires_in,
+                role: refresh_response.role,
+                token_type: refresh_response.token_type,
+                user_id: refresh_response.user_id,
+                user: refresh_response.user,
+            })
         } else {
             let error_response = response.json::<ErrorResponse>().await.map_err(|e| {
                 AuthError::ParseError(format!("Failed to parse error response: {}", e))
@@ -166,8 +204,9 @@ impl AuthClient {
 
     /// Login with username and password
     ///
-    /// Returns the login response with token and user information on success
-    pub async fn login(&self, username: &str, password: &str) -> Result<LoginResponse, AuthError> {
+    /// Returns the login data with token and user information on success.
+    /// The success field is checked internally, so you only get LoginData if authentication succeeds.
+    pub async fn login(&self, username: &str, password: &str) -> Result<LoginData, AuthError> {
         let login_request = LoginRequest {
             username: username.to_string(),
             password: password.to_string(),
@@ -185,7 +224,24 @@ impl AuthClient {
                 AuthError::ParseError(format!("Failed to parse login response: {}", e))
             })?;
 
-            Ok(login_response)
+            // Check the success field from the API response
+            if !login_response.success {
+                return Err(AuthError::InvalidCredentials(
+                    login_response.message.unwrap_or_else(|| "Authentication failed".to_string())
+                ));
+            }
+
+            // Convert LoginResponse to LoginData
+            Ok(LoginData {
+                message: login_response.message,
+                access_token: login_response.access_token,
+                refresh_token: login_response.refresh_token,
+                expires_in: login_response.expires_in,
+                role: login_response.role,
+                token_type: login_response.token_type,
+                user_id: login_response.user_id,
+                user: login_response.user,
+            })
         } else {
             // Parse error response
             let error_response = response.json::<ErrorResponse>().await.map_err(|e| {

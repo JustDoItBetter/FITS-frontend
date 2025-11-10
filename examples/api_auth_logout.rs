@@ -53,31 +53,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Attempt login
     let login_success = match auth_client.login(username, password).await {
-        Ok(login_response) => {
+        Ok(login_data) => {
             println!("✅ Login successful!");
-            println!("   Success: {}", login_response.success);
-            if let Some(msg) = &login_response.message {
+            if let Some(msg) = &login_data.message {
                 println!("   Message: {}", msg);
             }
-            if let Some(token) = &login_response.access_token {
+            if let Some(token) = &login_data.access_token {
                 println!("   Access Token: {}", token);
             }
-            if let Some(refresh) = &login_response.refresh_token {
+            if let Some(refresh) = &login_data.refresh_token {
                 println!("   Refresh Token: {}", refresh);
             }
-            if let Some(exp) = &login_response.expires_in {
+            if let Some(exp) = &login_data.expires_in {
                 println!("   Expires In: {} seconds", exp);
             }
-            if let Some(role) = &login_response.role {
+            if let Some(role) = &login_data.role {
                 println!("   Role: {}", role);
             }
-            if let Some(ttype) = &login_response.token_type {
+            if let Some(ttype) = &login_data.token_type {
                 println!("   Token Type: {}", ttype);
             }
-            if let Some(uid) = &login_response.user_id {
+            if let Some(uid) = &login_data.user_id {
                 println!("   User ID: {}", uid);
             }
-            if let Some(user) = &login_response.user {
+            if let Some(user) = &login_data.user {
                 println!("   User Info:");
                 println!("      ID: {}", user.id);
                 println!("      Username: {}", user.username);

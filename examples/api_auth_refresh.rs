@@ -28,28 +28,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\n🔄 Attempting to refresh token...");
     match auth_client.refresh_token(refresh_token).await {
-        Ok(resp) => {
+        Ok(data) => {
             println!("✅ Token refresh successful!");
-            println!("   Success: {}", resp.success);
-            if let Some(msg) = &resp.message {
+            if let Some(msg) = &data.message {
                 println!("   Message: {}", msg);
             }
-            if let Some(token) = &resp.access_token {
+            if let Some(token) = &data.access_token {
                 println!("   Access Token: {}", token);
             }
-            if let Some(refresh) = &resp.refresh_token {
+            if let Some(refresh) = &data.refresh_token {
                 println!("   Refresh Token: {}", refresh);
             }
-            if let Some(exp) = &resp.expires_in {
+            if let Some(exp) = &data.expires_in {
                 println!("   Expires In: {} seconds", exp);
             }
-            if let Some(role) = &resp.role {
+            if let Some(role) = &data.role {
                 println!("   Role: {}", role);
             }
-            if let Some(ttype) = &resp.token_type {
+            if let Some(ttype) = &data.token_type {
                 println!("   Token Type: {}", ttype);
             }
-            if let Some(uid) = &resp.user_id {
+            if let Some(uid) = &data.user_id {
                 println!("   User ID: {}", uid);
             }
         }
