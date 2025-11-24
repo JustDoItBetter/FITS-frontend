@@ -13,7 +13,7 @@ env:
 
 jobs:
   lint-fmt:
-    name: Lint: Format
+    name: "Lint: Format"
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +23,7 @@ jobs:
         run: cargo fmt --all -- --check
 
   verification:
-    name: Lint & Test
+    name: "Lint & Test"
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
