@@ -2,9 +2,7 @@ name: Rust
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -14,53 +12,66 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  lint-fmt:
+    name: Lint: Format
     runs-on: ubuntu-24.04
-    
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        # First install the universe repository for additional packages
-        sudo apt install -y software-properties-common
-        sudo add-apt-repository universe
-        sudo apt update
-        
-        # Install GTK4 development packages (these should exist in Ubuntu 24.04)
-        sudo apt install -y \
-          build-essential \
-          libdbus-1-dev \
-          pkg-config \
-          libgtk-4-dev \
-          libgtk-4-1 \
-          gtk-4-examples \
-          libadwaita-1-dev \
-          libsqlite3-dev \
-          protobuf-compiler \
-          libcairo2-dev \
-          libpango1.0-dev \
-          libgdk-pixbuf2.0-dev \
-          libglib2.0-dev \
-          libgraphene-1.0-dev
-    
-    - name: Set PKG_CONFIG_PATH
-      run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
-    
-    - name: Cache cargo registry
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-
-    
-    - name: Build
-      run: cargo build --verbose
+      - uses: actions/checkout@v4
+      - name: Install rustfmt
+        run: rustup component add rustfmt || true
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  verification:
+    name: Lint & Test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
       
-    - name: Run tests
-      run: cargo test --verbose
+      - name: Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y software-properties-common
+          sudo add-apt-repository universe
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+            libdbus-1-dev \
+            pkg-config \
+            libgtk-4-dev \
+            libgtk-4-1 \
+            gtk-4-examples \
+            libadwaita-1-dev \
+            libsqlite3-dev \
+            protobuf-compiler \
+            libcairo2-dev \
+            libpango1.0-dev \
+            libgdk-pixbuf2.0-dev \
+            libglib2.0-dev \
+            libgraphene-1.0-dev
+    
+      - name: Set PKG_CONFIG_PATH
+        run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
+    
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install clippy
+        run: rustup component add clippy || true
+
+      - name: Lint: Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Lint: Check
+        run: cargo check --all-targets --all-features --verbose
+
+      - name: Test
+        run: cargo test --workspace --all-features --verbose
