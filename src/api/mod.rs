@@ -10,7 +10,7 @@ pub mod auth;
 /// # Example Usage
 ///
 /// ## Health Check
-/// ```rust
+/// ```rust,no_run
 /// use fits::api::FitsApiClient;
 ///
 /// #[tokio::main]

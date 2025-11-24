@@ -342,7 +342,7 @@ mod tests {
         assert_eq!(resp.code, 400);
         assert_eq!(resp.details.as_deref(), Some("field validation failed"));
         assert_eq!(resp.error, "invalid request");
-        assert!(resp.success);
+        assert!(!resp.success);
     }
 
     #[test]
