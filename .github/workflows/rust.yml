@@ -67,10 +67,10 @@ jobs:
       - name: Install clippy
         run: rustup component add clippy || true
 
-      - name: Lint: Clippy
+      - name: "Lint: Clippy"
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      - name: Lint: Check
+      - name: "Lint: Check"
         run: cargo check --all-targets --all-features --verbose
 
       - name: Test
