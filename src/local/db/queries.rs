@@ -89,7 +89,7 @@ pub fn get_weeks(
 }
 
 fn check_for_new_entry(res: &[common::WeeklyReport], current: &super::schema::Activity) -> bool {
-    res.len() == 0 || res[res.len() - 1].get_timestamp() != current.timestamp
+    res.is_empty() || res[res.len() - 1].get_timestamp() != current.timestamp
 }
 
 /// Save the given data to the db.

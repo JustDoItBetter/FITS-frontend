@@ -27,6 +27,7 @@ pub enum LocalError {
 
 /// Stores all data that is needed at runtime
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct State {
     conn: local::db::DbConnector,
     username: String,
@@ -134,7 +135,7 @@ impl WeeklyReport {
     /// This function is only really useful for parsing data from another format
     /// into a WeeklyReport.
     ///
-    /// # Unsafety
+    /// # Safety
     /// This function is unsafe because any WeeklyReport constructed through it is
     /// not guaranteed to have an accurate last_update timestamp.
     ///
@@ -174,6 +175,7 @@ impl WeeklyReport {
 
     /// Set the last_update property.
     ///
+    /// # Safety
     /// This should never be necessary (and is not yet in use), but if the need
     /// arises, it should be clear that this IS unsafe.
     ///
@@ -214,6 +216,7 @@ impl WeeklyReport {
         self.signed = true;
     }
 
+    /// # Safety
     /// There is no good reason you should ever call this function. If you do, then
     /// there must be something reasonably wrong with the logic of the application
     /// itself that you should probably look into that instead of this.
@@ -231,7 +234,7 @@ impl WeeklyReport {
 // https://mmstick.github.io/gtkrs-tutorials/1x03-glib-runtime.html
 
 pub fn thread_context() -> glib::MainContext {
-    glib::MainContext::thread_default().unwrap_or_else(|| glib::MainContext::new())
+    glib::MainContext::thread_default().unwrap_or_default()
 }
 
 pub fn block_on<F>(future: F) -> F::Output

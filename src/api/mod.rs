@@ -53,5 +53,8 @@ pub mod invitations;
 pub mod signing;
 
 // Re-export main types for convenience
-pub use auth::{AuthClient, AuthError, LoginData, LoginRequest, LoginResponse, LogoutResponse, RefreshTokenData, UserInfo};
+pub use auth::{
+    AuthClient, AuthError, LoginData, LoginRequest, LoginResponse, LogoutResponse,
+    RefreshTokenData, UserInfo,
+};
 pub use handler::{ApiConfig, ApiError, FitsApiClient, HealthResponse};

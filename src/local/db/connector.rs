@@ -3,11 +3,10 @@
 
 use crate::common;
 
-use super::{DbAnswer, DbCommand, DbRequest};
+use super::{DbCommand, DbRequest};
 use diesel::prelude::*;
 
 use std::fmt::Debug;
-use std::sync::Arc;
 use std::sync::mpsc;
 
 /// Wrapper over a [mpsc::Sender] for convenient communication with the database on
@@ -16,6 +15,7 @@ use std::sync::mpsc;
 /// Because this is essentially just a sender, it can be freely cloned, is Send and
 /// is Sync.
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 pub struct DbConnector {
     sender: mpsc::Sender<DbRequest>,
 }

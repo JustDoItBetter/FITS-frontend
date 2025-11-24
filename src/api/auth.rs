@@ -136,10 +136,7 @@ impl AuthClient {
     ///
     /// Returns the refresh token data with new tokens on success.
     /// The success field is checked internally, so you only get RefreshTokenData if refresh succeeds.
-    pub async fn refresh_token(
-        &self,
-        refresh_token: &str,
-    ) -> Result<RefreshTokenData, AuthError> {
+    pub async fn refresh_token(&self, refresh_token: &str) -> Result<RefreshTokenData, AuthError> {
         let req = RefreshTokenRequest {
             refresh_token: refresh_token.to_string(),
         };
@@ -150,7 +147,7 @@ impl AuthClient {
             let refresh_response = response.json::<RefreshTokenResponse>().await.map_err(|e| {
                 AuthError::ParseError(format!("Failed to parse refresh response: {}", e))
             })?;
-            
+
             // Check the success field from the API response
             if !refresh_response.success {
                 return Err(AuthError::Unauthorized(ErrorResponse {
@@ -227,7 +224,9 @@ impl AuthClient {
             // Check the success field from the API response
             if !login_response.success {
                 return Err(AuthError::InvalidCredentials(
-                    login_response.message.unwrap_or_else(|| "Authentication failed".to_string())
+                    login_response
+                        .message
+                        .unwrap_or_else(|| "Authentication failed".to_string()),
                 ));
             }
 
@@ -319,7 +318,7 @@ mod tests {
             "user_id": "550e8400-e29b-41d4-a716-446655440000"
         });
         let resp: RefreshTokenResponse = serde_json::from_value(data).unwrap();
-        assert_eq!(resp.success, true);
+        assert!(resp.success);
         assert_eq!(resp.access_token.as_deref(), Some("eyJhbGc..."));
         assert_eq!(resp.refresh_token.as_deref(), Some("eyJhbGc..."));
         assert_eq!(resp.expires_in, Some(3600));
@@ -343,7 +342,7 @@ mod tests {
         assert_eq!(resp.code, 400);
         assert_eq!(resp.details.as_deref(), Some("field validation failed"));
         assert_eq!(resp.error, "invalid request");
-        assert_eq!(resp.success, false);
+        assert!(resp.success);
     }
 
     #[test]
