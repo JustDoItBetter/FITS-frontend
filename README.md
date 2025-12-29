@@ -1,5 +1,5 @@
 # FITS
-Fucking IHK tooling sucks
+Flexible IT trainee system
 
 ### Project Status - Development Proceeding
 Development is ongoing and continuing. Things should start to happen more and more
