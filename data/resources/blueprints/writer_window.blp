@@ -14,24 +14,46 @@ template $FitsWriterWindow: Adw.ApplicationWindow {
     }
   }
 
-  content: Adw.ToolbarView {
-    [top]
-    Adw.HeaderBar {
-      [end]
-      Gtk.MenuButton {
-        tooltip-text: _("Main Menu");
-        icon-name: "open-menu-symbolic";
-        menu-model: main_menu;
+  content: Adw.OverlaySplitView main_view {
+    sidebar: Gtk.Box {
+      orientation: vertical;
+      margin-start: 5;
+      margin-end: 5;
+      margin-bottom: 5;
+      margin-top: 5;
+
+      Adw.EntryRow add_activity_row {
+        title: _("Add Activity");
+        show-apply-button: true;
+        tooltip-text: _("Add Activity");
+        apply => $add_activity() swapped;
       }
-    }
 
-    Adw.OverlaySplitView main_view {
-      sidebar: Gtk.Box activities_source {
-        orientation: vertical;
+      Gtk.Separator {}
+
+      Gtk.ScrolledWindow {
+        // TODO: Convert to ListView
+        child: Gtk.ListBox activities_source {
+          vexpand: true;
+        };
+      }
+    };
+
+    content: Adw.ToastOverlay toast_overlay {
+      child: Adw.ToolbarView {
+        content: $FitsWeeklyView weekly_view {};
+
+        [top]
+        Adw.HeaderBar {
+          [end]
+          Gtk.MenuButton {
+            tooltip-text: _("Main Menu");
+            icon-name: "open-menu-symbolic";
+            menu-model: main_menu;
+          }
+        }
       };
-
-      content: Adw.Bin weekly_view {};
-    }
+    };
   };
 }
 

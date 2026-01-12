@@ -1,6 +1,7 @@
 // All the things that need to happen on the local filesystem
 // SPDX-License-Identifier: GPL-3.0-only
 
+pub mod dates;
 pub mod db;
 pub mod keyring;
 pub mod paths;

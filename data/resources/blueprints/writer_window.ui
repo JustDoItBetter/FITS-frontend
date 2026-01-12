@@ -17,30 +17,58 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
       </object>
     </child>
     <property name="content">
-      <object class="AdwToolbarView">
-        <child type="top">
-          <object class="AdwHeaderBar">
-            <child type="end">
-              <object class="GtkMenuButton">
-                <property name="tooltip-text" translatable="yes">Main Menu</property>
-                <property name="icon-name">open-menu-symbolic</property>
-                <property name="menu-model">main_menu</property>
+      <object class="AdwOverlaySplitView" id="main_view">
+        <property name="sidebar">
+          <object class="GtkBox">
+            <property name="orientation">1</property>
+            <property name="margin-start">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-top">5</property>
+            <child>
+              <object class="AdwEntryRow" id="add_activity_row">
+                <property name="title" translatable="yes">Add Activity</property>
+                <property name="show-apply-button">true</property>
+                <property name="tooltip-text" translatable="yes">Add Activity</property>
+                <signal name="apply" handler="add_activity" swapped="True"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator"></object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="child">
+                  <object class="GtkListBox" id="activities_source">
+                    <property name="vexpand">true</property>
+                  </object>
+                </property>
               </object>
             </child>
           </object>
-        </child>
-        <child>
-          <object class="AdwOverlaySplitView" id="main_view">
-            <property name="sidebar">
-              <object class="GtkBox" id="activities_source">
-                <property name="orientation">1</property>
+        </property>
+        <property name="content">
+          <object class="AdwToastOverlay" id="toast_overlay">
+            <property name="child">
+              <object class="AdwToolbarView">
+                <property name="content">
+                  <object class="FitsWeeklyView" id="weekly_view"></object>
+                </property>
+                <child type="top">
+                  <object class="AdwHeaderBar">
+                    <child type="end">
+                      <object class="GtkMenuButton">
+                        <property name="tooltip-text" translatable="yes">Main Menu</property>
+                        <property name="icon-name">open-menu-symbolic</property>
+                        <property name="menu-model">main_menu</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </property>
-            <property name="content">
-              <object class="AdwBin" id="weekly_view"></object>
-            </property>
           </object>
-        </child>
+        </property>
       </object>
     </property>
   </template>

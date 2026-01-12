@@ -6,8 +6,9 @@ use crate::{common, local};
 use adw::prelude::*;
 
 mod actions;
+pub mod setup;
 mod templates;
-mod widgets;
+pub mod widgets;
 
 pub fn run() {
     gtk::gio::resources_register_include!("compiled.gresources")
@@ -47,6 +48,7 @@ pub fn build_setup_dialog(app: &adw::Application) {
 
 fn build_writing_window(app: &adw::Application, state: common::State) {
     let window = widgets::FitsWriterWindow::new(app);
+
     window.set_state(state);
     actions::register_writer_actions(app, window.clone());
     window.present();

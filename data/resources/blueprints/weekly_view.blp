@@ -1,75 +1,37 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $WeeklyView: Adw.Bin {
+template $FitsWeeklyView: Adw.Bin {
   child: Gtk.Box {
-    orientation: horizontal;
+    vexpand: true;
+    orientation: vertical;
 
-    Gtk.Box monday_column {
-      orientation: vertical;
+    Gtk.Label title_label {
+      label: _("");
+
+      styles [
+        "title-1",
+      ]
+    }
+
+    Gtk.Separator {
+      orientation: horizontal;
+      height-request: 10;
+
+      styles [
+        "spacer",
+      ]
+    }
+
+    ScrolledWindow {
       vexpand: true;
+      hexpand: true;
 
-      Gtk.Label {
-        label: _("Monday");
-      }
-
-      Gtk.Separator {
+      child: Gtk.ListView days_list {
         orientation: horizontal;
-      }
-    }
-
-    Gtk.Box tuesday_column {
-      orientation: vertical;
-      vexpand: true;
-
-      Gtk.Label {
-        label: _("Tuesday");
-      }
-    }
-
-    Gtk.Box wednesday_column {
-      orientation: vertical;
-      vexpand: true;
-
-      Gtk.Label {
-        label: _("Wednesday");
-      }
-    }
-
-    Gtk.Box thursday_column {
-      orientation: vertical;
-      vexpand: true;
-
-      Gtk.Label {
-        label: _("Thursday");
-      }
-    }
-
-    Gtk.Box friday_column {
-      orientation: vertical;
-      vexpand: true;
-
-      Gtk.Label {
-        label: _("Friday");
-      }
-    }
-
-    Gtk.Box saturday_column {
-      orientation: vertical;
-      vexpand: true;
-
-      Gtk.Label {
-        label: _("Saturday");
-      }
-    }
-
-    Gtk.Box sunday_column {
-      orientation: vertical;
-      vexpand: true;
-
-      Gtk.Label {
-        label: _("Sunday");
-      }
+        vexpand: true;
+        hexpand: true;
+      };
     }
   };
 }

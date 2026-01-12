@@ -1,0 +1,36 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $FitsDay: Adw.Bin {
+  width-request: 100;
+  valign: fill;
+  vexpand: true;
+
+  child: Gtk.ScrolledWindow {
+    vexpand: true;
+
+    child: Gtk.Box {
+      vexpand: true;
+      orientation: vertical;
+
+      Gtk.Label title_label {
+        label: _("Day");
+
+        styles [
+          "heading",
+        ]
+      }
+
+      Gtk.Separator {
+        orientation: horizontal;
+        height-request: 10;
+
+        styles [
+          "spacer",
+        ]
+      }
+
+      Gtk.ListBox activities_listbox {}
+    };
+  };
+}

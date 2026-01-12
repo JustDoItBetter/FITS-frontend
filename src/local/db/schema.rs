@@ -5,45 +5,40 @@
 //!  functions.
 // SPDX-License-Identifier: GPL-3.0-only
 
-use diesel::prelude::*;
+/// SQL schema for creating the database tables
+pub const CREATE_WEEKLY_REPORTS_TABLE: &str = r#"
+CREATE TABLE IF NOT EXISTS weekly_reports (
+    year INTEGER NOT NULL,
+    week INTEGER NOT NULL,
+    signed INTEGER NOT NULL,
+    last_update DATETIME NOT NULL,
+    primary key (year, week)
+)
+"#;
 
-diesel::table!(
-    weekly_reports(timestamp) {
-        signed -> Bool,
-        timestamp -> Timestamp,
-        last_update -> Timestamp,
-    }
-);
+pub const CREATE_ACTIVITIES_TABLE: &str = r#"
+CREATE TABLE IF NOT EXISTS activities (
+    year INTEGER NOT NULL,
+    week INTEGER NOT NULL,
+    day TEXT NOT NULL,
+    activity INTEGER NOT NULL,
+    position INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (year, week, day, activity),
+    FOREIGN KEY (year, week) REFERENCES weekly_reports(year, week),
+    FOREIGN KEY (activity) REFERENCES available_activities(ident)
+)
+"#;
 
-diesel::table!(
-    activities(timestamp, day) {
-        timestamp -> Timestamp,
-        day -> Text,
-        activity -> Text,
-    }
-);
+pub const CREATE_AVAILABLE_ACTIVITIES_TABLE: &str = r#"
+CREATE TABLE IF NOT EXISTS available_activities (
+    ident INTEGER PRIMARY KEY,
+    activity TEXT NOT NULL UNIQUE
+)
+"#;
 
-diesel::joinable!(activities -> weekly_reports (timestamp));
-diesel::allow_tables_to_appear_in_same_query!(activities, weekly_reports);
-
-#[derive(Queryable, Identifiable, Selectable, Insertable)]
-#[diesel(primary_key(timestamp))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct WeeklyReport {
-    pub signed: bool,
-    pub timestamp: chrono::NaiveDateTime,
-    pub last_update: chrono::NaiveDateTime,
-}
-
-#[derive(Queryable, Associations, Selectable, Insertable)]
-#[diesel(table_name = activities)]
-#[diesel(belongs_to(WeeklyReport, foreign_key=timestamp))]
-#[diesel(primary_key(timestamp, day))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct Activity {
-    pub timestamp: chrono::NaiveDateTime,
-    /// Must be one of "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
-    /// "Saturday", "Sunday".
-    pub day: String,
-    pub activity: String,
+pub fn create_tables(conn: &rusqlite::Connection) -> rusqlite::Result<()> {
+    conn.execute(CREATE_WEEKLY_REPORTS_TABLE, [])?;
+    conn.execute(CREATE_AVAILABLE_ACTIVITIES_TABLE, [])?;
+    conn.execute(CREATE_ACTIVITIES_TABLE, [])?;
+    Ok(())
 }

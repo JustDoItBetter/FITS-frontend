@@ -44,7 +44,6 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                             <child>
                               <object class="AdwEntryRow" id="username_entry">
                                 <property name="title" translatable="yes">Username</property>
-                                <property name="text" translatable="yes">Please enter your username</property>
                               </object>
                             </child>
                             <child>

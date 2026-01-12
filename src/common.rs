@@ -1,7 +1,8 @@
 //! Common types used throughout the application
 // SPDX-License-Identifier: GPL-3.0-only
 
-use crate::local;
+use crate::{gui, local};
+use chrono::Datelike;
 use std::collections::HashMap;
 
 use gtk::glib;
@@ -11,9 +12,9 @@ use std::future::Future;
 ///
 /// TODO: Implement fmt to be somewhat helpful error messages to be displayed
 #[non_exhaustive]
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum LocalError {
-    /// To be returned by functions where diesel returns an error
+    /// To be returned by functions where rusqlite returns an error
     DbError,
     /// To be returned if a path that is expected to exist does not
     NotFound,
@@ -64,6 +65,10 @@ impl State {
             password,
         }
     }
+
+    pub fn get_db_connector(&self) -> local::db::DbConnector {
+        self.conn.clone()
+    }
 }
 
 impl Config {
@@ -94,14 +99,15 @@ impl Default for Config {
 ///
 /// ## For other devs working in FITS
 /// Unless necessary, prefer to use this struct to relay information about a report.
-/// If you must use a different format, keep it in the specific module, like
-/// [local::db::schema::WeeklyReport] and parse it into this when talking to other
-/// modules.
-#[derive(serde::Serialize, serde::Deserialize)]
+/// If you must use a different format, keep it in the specific module, like and
+/// parse it into this when talking to other modules.
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct WeeklyReport {
     signed: bool,
-    /// Specifies a time within the week this report applies to.
-    timestamp: chrono::NaiveDateTime,
+    /// Specifies the year this applies to
+    year: i32,
+    /// Specifies the week number this applies to
+    week: u32,
     /// Specifies when this report was last written to (mostly relevant for backups)
     last_update: chrono::NaiveDateTime,
     days: HashMap<String, Vec<String>>,
@@ -110,17 +116,24 @@ pub struct WeeklyReport {
 impl WeeklyReport {
     /// Create a new WeeklyReport.
     ///
-    /// Note that this function creates a new timestamp for you. If you already have
-    /// all the data for the report and are just parsing into WeeklyReport, you
-    /// probably want to use [WeeklyReport::from_raw_parts()] instead.
+    /// If no timestamp is provided, the current timestamp will be used.
+    ///
+    /// Note that this function automatically sets the last_updated property for
+    /// you. If you already have all the data for the report and are just parsing
+    /// into WeeklyReport, you probably want to use [WeeklyReport::from_raw_parts()]
+    /// instead.
     pub fn new(
         signed: bool,
-        timestamp: chrono::NaiveDateTime,
+        timestamp: Option<chrono::NaiveDateTime>,
         days: Option<HashMap<String, Vec<String>>>,
     ) -> Self {
+        let timestamp = timestamp.unwrap_or_else(|| chrono::Utc::now().naive_utc());
+        let iso_week = timestamp.iso_week();
+
         WeeklyReport {
             signed,
-            timestamp,
+            year: iso_week.year(),
+            week: iso_week.week(),
             last_update: chrono::Utc::now().naive_utc(),
             days: days.unwrap_or_default(),
         }
@@ -135,20 +148,21 @@ impl WeeklyReport {
     /// into a WeeklyReport.
     ///
     /// # Unsafety
-    /// This function is unsafe because any WeeklyReport constructed through it is
-    /// not guaranteed to have an accurate last_update timestamp.
+    /// This function creates a WeeklyReport by naively trusting the inputs to be
+    /// correct. ONLY use it for parsing from another source, such as the db.
     ///
-    /// If this makes unsafe extremely prevalent throughout the application, the
-    /// unsafe on this function could be removed.
-    pub unsafe fn from_raw_parts(
+    /// For creating a new WeeklyReport, use [WeeklyReport::new] instead.
+    pub fn from_raw_parts(
         signed: bool,
-        timestamp: chrono::NaiveDateTime,
+        year: i32,
+        week: u32,
         last_update: chrono::NaiveDateTime,
         days: HashMap<String, Vec<String>>,
     ) -> Self {
         WeeklyReport {
             signed,
-            timestamp,
+            year,
+            week,
             last_update,
             days,
         }
@@ -174,11 +188,10 @@ impl WeeklyReport {
 
     /// Set the last_update property.
     ///
-    /// This should never be necessary (and is not yet in use), but if the need
-    /// arises, it should be clear that this IS unsafe.
+    /// This should never be necessary.
     ///
     /// Not that this also does not update the signature status.
-    pub unsafe fn set_last_update(&mut self, last_update: chrono::NaiveDateTime) {
+    pub fn set_last_update(&mut self, last_update: chrono::NaiveDateTime) {
         self.last_update = last_update;
     }
 
@@ -187,20 +200,25 @@ impl WeeklyReport {
         self.last_update
     }
 
-    /// Getter for the timestamp.
-    pub fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.timestamp
+    /// Getter for the year
+    pub fn get_year(&self) -> i32 {
+        self.year
+    }
+
+    /// Getter for the week number
+    pub fn get_week(&self) -> u32 {
+        self.week
     }
 
     /// Set ALL THE DAYS. At this point, you'll probably rather use either
-    /// [WeeklyReport::new()] or just [WeeklyReport::add_day].
+    /// [WeeklyReport::new] or just [WeeklyReport::add_day].
     ///
     /// # Note
     /// This sets last_update to the current timestamp, so **INFORM THE USER**
     /// before doing this.
     pub fn set_days(&mut self, activities: HashMap<String, Vec<String>>) {
         self.days = activities;
-        self.timestamp = chrono::Utc::now().naive_utc();
+        self.last_update = chrono::Utc::now().naive_utc();
         self.signed = false;
     }
 
@@ -214,15 +232,46 @@ impl WeeklyReport {
         self.signed = true;
     }
 
-    /// There is no good reason you should ever call this function. If you do, then
-    /// there must be something reasonably wrong with the logic of the application
-    /// itself that you should probably look into that instead of this.
-    pub unsafe fn revoke_signature(&mut self) {
+    /// There is no good reason you should ever call this function.
+    ///
+    /// It is purely there to tell you this in the documentation before you try to
+    /// do so anyway.
+    pub fn revoke_signature(&mut self) {
         self.signed = false;
     }
 
+    /// Getter for the signature status.
     pub fn is_signed(&self) -> bool {
         self.signed
+    }
+
+    /// Get a representative timestamp for this week (Monday 00:00:00).
+    /// Useful for compatibility and display purposes.
+    pub fn get_week_start_timestamp(&self) -> chrono::NaiveDateTime {
+        chrono::NaiveDate::from_isoywd_opt(self.year, self.week, chrono::Weekday::Mon)
+            .unwrap_or_else(|| {
+                log::warn!("Invalid ISO week: {} week {}", self.year, self.week);
+                chrono::NaiveDate::from_ymd_opt(self.year, 1, 1).unwrap()
+            })
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+    }
+
+    /// Sets up a basic week view with all days in order.
+    ///
+    /// You still need to bind the ListStore because that is stored in
+    /// FITSWriterWindow.
+    pub fn get_day_widgets(&self) -> Vec<gui::widgets::Day> {
+        let complete_days = local::dates::ensure_complete_week(&mut self.days.clone(), self);
+        let mut sorted_days: Vec<(String, Vec<String>)> = complete_days.into_iter().collect();
+        sorted_days.sort_by_key(|(day, _)| local::dates::day_sort_key(day));
+
+        let mut res = Vec::new();
+        for (day, _) in sorted_days {
+            let day_box = gui::setup::create_day(&day);
+            res.push(day_box);
+        }
+        res
     }
 }
 
@@ -231,7 +280,7 @@ impl WeeklyReport {
 // https://mmstick.github.io/gtkrs-tutorials/1x03-glib-runtime.html
 
 pub fn thread_context() -> glib::MainContext {
-    glib::MainContext::thread_default().unwrap_or_else(|| glib::MainContext::new())
+    glib::MainContext::thread_default().unwrap_or_default()
 }
 
 pub fn block_on<F>(future: F) -> F::Output
